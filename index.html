@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Proposta para Pregões Eletrônicos (ME/EPP)</title>
+    <title>Gerador de Proposta Comercial (Orçamento)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Estilos Base para Visualização e Impressão */
         body {
             font-family: 'Inter', Arial, sans-serif;
+            margin: 20px;
             background-color: #f8f8f8;
-            color: #333;
-            padding: 20px;
+            color: #333; /* Cor de texto padrão */
         }
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 1100px;
+            margin: auto;
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
@@ -31,82 +31,86 @@
         }
         h2 {
             color: #333;
+            padding-bottom: 5px;
             margin-top: 25px;
             font-size: 1.4em;
             border-left: 5px solid #1e88e5;
             padding-left: 10px;
-            margin-bottom: 15px;
         }
-        h3 {
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: 600;
             color: #444;
-            margin-top: 15px;
-            margin-bottom: 10px;
-            font-size: 1.1em;
+        }
+        input[type="text"], input[type="date"], input[type="number"], input[type="email"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box; /* Garante que padding e border não aumentem a largura total */
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, input[type="email"]:focus, textarea:focus {
+            border-color: #1e88e5;
+            outline: none;
+            box-shadow: 0 0 5px rgba(30, 136, 229, 0.3);
+        }
+        input[type="number"] { text-align: right; }
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
         .form-section {
             margin-bottom: 30px;
             padding: 20px;
             border: 1px solid #e0e0e0;
             border-radius: 10px;
-            background-color: #fafafa;
+            background-color: #fff;
         }
-        label {
-            display: block;
-            margin-top: 12px;
-            font-weight: 600;
-            color: #444;
-            margin-bottom: 5px;
-        }
-        input[type="text"], input[type="date"], input[type="datetime-local"], 
-        input[type="number"], input[type="email"], textarea, select {
+
+        /* Estilos Tabela de Itens */
+        #itemsTable {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.95em;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-        input:focus, textarea:focus, select:focus {
-            border-color: #1e88e5;
-            outline: none;
-            box-shadow: 0 0 5px rgba(30, 136, 229, 0.3);
-        }
-        .two-cols, .three-cols {
-            display: grid;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-        .two-cols { grid-template-columns: 1fr 1fr; }
-        .three-cols { grid-template-columns: 1fr 1fr 1fr; }
-        @media (max-width: 768px) {
-            .two-cols, .three-cols { grid-template-columns: 1fr; }
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+            border-collapse: separate; /* Permite border-radius nas células */
+            border-spacing: 0;
+            margin-top: 20px;
             border-radius: 8px;
-            overflow: hidden;
+            overflow: hidden; /* Garante que o border-radius seja aplicado */
         }
-        th, td {
+        #itemsTable th, #itemsTable td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 10px 5px;
             text-align: left;
-            font-size: 0.85em;
+            vertical-align: middle;
+            font-size: 0.7em;
         }
-        th {
+        #itemsTable th {
             background-color: #e3f2fd;
             color: #1e88e5;
             font-weight: 700;
             border-bottom: 2px solid #1e88e5;
         }
-        tr:nth-child(even) { background-color: #f9f9f9; }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
+
+        /* Estilo específico para o campo de Quantidade */
+        .input-quantidade {
+            text-align: right;
+            font-weight: bold;
+            padding: 5px 8px;
+            font-size: 1.1em !important;
+            height: 30px;
+            width: calc(100% - 2px);
+            box-sizing: border-box;
+        }
+
+        /* Botões */
         .btn-base {
             border: none;
-            padding: 10px 16px;
+            padding: 8px 16px;
             cursor: pointer;
             border-radius: 6px;
             font-size: 0.9em;
@@ -114,50 +118,100 @@
             font-weight: bold;
         }
         .btn-add { background-color: #43a047; color: white; margin-top: 15px; }
-        .btn-add:hover { background-color: #388e3c; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .btn-remove { background-color: #d32f2f; color: white; padding: 6px 10px; }
+        .btn-remove { background-color: #d32f2f; color: white; margin: 0; padding: 6px 10px; }
+        .btn-add:hover { background-color: #388e3c; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
         .btn-remove:hover { background-color: #b71c1c; }
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
+        .btn-group { display: flex; gap: 15px; margin-top: 30px; }
         .btn-action {
             background-color: #1e88e5;
             color: white;
-            padding: 12px 20px;
+            padding: 15px 25px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.95em;
-            flex: 1;
-            min-width: 150px;
+            font-size: 1.1em;
+            flex-grow: 1;
             font-weight: bold;
         }
-        .btn-action:hover { background-color: #1565c0; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .btn-txt { background-color: #00acc1; }
-        .btn-txt:hover { background-color: #00838f; }
+        .btn-action:hover { background-color: #1565c0; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .btn-txt:hover { background-color: #00acc1; }
         .btn-json-export { background-color: #ff9800; }
         .btn-json-export:hover { background-color: #fb8c00; }
         .btn-json-import { background-color: #8bc34a; }
         .btn-json-import:hover { background-color: #7cb342; }
-        .btn-checklist { background-color: #673ab7; }
-        .btn-checklist:hover { background-color: #5e35b1; }
-        .read-only-field { background-color: #eceff1; color: #666; border: 1px dashed #cfd8dc; }
+
+        /* Estilos de Campos Especiais */
+        .read-only-field { background-color: #eceff1; color: #666; font-size: 0.9em; border: 1px dashed #cfd8dc; }
         .calculated-field { background-color: #e8f5e9; font-weight: bold; color: #388e3c; }
-        #message-box {
-            display: none;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            text-align: center;
-            border: 1px solid;
+        #observacoes { resize: vertical; }
+
+        /* Estilos para a célula de imagem */
+        .image-container {
+            position: relative;
+            padding: 5px 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        .image-inputs-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 3px;
+            margin-bottom: 5px;
+        }
+        .item-image-url-input {
+            padding: 4px;
+            font-size: 0.75em;
+            height: 25px;
+            box-sizing: border-box;
+        }
+        .file-input-label {
+            display: inline-block;
+            background-color: #009688;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7em;
+            text-align: center;
+            line-height: 1;
+            box-sizing: border-box;
+            white-space: nowrap;
+            width: 100%;
+        }
+        .file-input-label:hover {
+            background-color: #00796b;
+        }
+        .item-image-preview {
+            max-width: 50px;
+            max-height: 50px;
+            margin-top: 5px;
+            display: block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+        .image-feedback {
+            margin-top: 2px !important;
+            font-size: 0.6em !important;
+            color: #777 !important;
+            text-align: center;
+            word-break: break-all; /* Garante que o texto longo não exceda a célula */
+            line-height: 1.2;
+        }
+
+
+        /* Estilos para Tabela do Simples Nacional - OCULTAR NO FORMULÁRIO */
+        /* Esta tabela é apenas para referência interna e não deve ser exibida ao usuário */
+        #simplesTable { display: none; }
+        #simples-nacional-section h3 { display: none; }
+
+
+        /* Estilos para o novo resumo financeiro */
         .finance-summary {
             margin-top: 30px;
-            padding: 20px;
+            padding: 15px;
             border: 2px solid #43a047;
             border-radius: 8px;
             background-color: #e8f5e9;
@@ -165,306 +219,215 @@
         .finance-summary h3 {
             color: #43a047;
             margin-top: 0;
-            padding-bottom: 10px;
+            padding-bottom: 5px;
             border-bottom: 2px solid #c8e6c9;
         }
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 15px;
+            gap: 10px 20px;
         }
         .summary-item {
             display: flex;
             justify-content: space-between;
-            font-size: 1em;
-            padding: 8px 0;
+            font-size: 1.1em;
+            padding: 5px 0;
             border-bottom: 1px dashed #c8e6c9;
         }
         .summary-item strong { color: #333; }
-        .summary-item .value { font-weight: 700; color: #1e88e5; }
+        .summary-item .value { font-weight: 700; }
         .final-profit {
-            font-size: 1.3em;
+            font-size: 1.5em;
             font-weight: 700;
             color: #1e88e5;
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 2px solid #1e88e5;
         }
-        .declaration-item {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: flex-start;
-        }
-        .declaration-item input[type="checkbox"] {
-            margin-right: 10px;
-            margin-top: 4px;
-            transform: scale(1.2);
-            cursor: pointer;
-        }
-        .declaration-item label {
-            font-weight: normal;
-            margin-top: 0;
-            display: inline;
-            color: #333;
-            cursor: pointer;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 90%;
-            max-width: 800px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close-button:hover { color: black; }
-        .preview-area { display: none; margin-top: 30px; }
+        .imposto-value { color: #d32f2f; }
+
+        /* Estilos de impressão (Para PDF) */
         @media print {
             body { background: none; margin: 0; padding: 0; }
-            .container { box-shadow: none; border: none; padding: 10mm; }
-            .form-section, .btn-group, h1, #message-box, .finance-summary, .modal { display: none !important; }
-            .preview-area { display: block !important; }
+            .container { box-shadow: none; border: none; padding: 10mm; max-width: 100%; }
+            /* Oculta o formulário principal, botões e o resumo financeiro na impressão */
+            .form-section, .btn-group, h1, #message-box, .finance-summary { display: none !important; }
+            .orcamento-footer .info-fiscal { display: block !important; } /* Mostra info fiscal no PDF */
+
+            /* Mostra apenas a pré-visualização para impressão */
+            .preview-area {
+                display: block !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100%; /* Garante que a área de preview ocupe a largura total */
+            }
+            .orcamento-header { border-bottom: 3px solid #1e88e5 !important; padding-bottom: 5px !important; }
+
+            /* Ajusta a tabela para impressão */
+            .preview-area table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+            .preview-area th, .preview-area td { border: 1px solid #000; padding: 6px; font-size: 9pt; }
+            .preview-area th { background-color: #f0f0f0 !important; }
+            .total-box {
+                width: 50%;
+                float: right;
+                margin-top: 10px;
+                /* Adiciona um clear para garantir que o total box flutue corretamente */
+                clear: both;
+            }
+            .total-box .total-final { border-top: 1px solid #000 !important; background-color: #f0f0f0 !important; }
+
+            /* Garante que as imagens dos itens fiquem visíveis na impressão e não quebrem o layout */
+            .orcamento-body img.item-image-print {
+                max-width: 50px;
+                max-height: 50px;
+                display: block;
+                margin: 0 auto;
+                object-fit: contain;
+            }
+            .clearfix::after {
+                content: "";
+                clear: both;
+                display: table;
+            }
+            .item-description-print {
+                font-size: 0.75em;
+                color: #555;
+                display: block;
+                margin-top: 3px;
+                white-space: pre-wrap; /* Permite quebras de linha na descrição */
+            }
+            /* Força quebras de página em áreas estratégicas para melhor organização do PDF */
+            .orcamento-footer {
+                page-break-before: auto;
+                margin-top: 20px; /* Adiciona um espaço para o footer */
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎯 Gerador de Proposta para Pregões Eletrônicos (ME/EPP)</h1>
+    <h1>Gerador de Proposta Comercial (Orçamento)</h1>
 
-    <div id="message-box"></div>
+    <!-- Caixa de mensagens para feedback ao usuário (erros, sucessos, avisos) -->
+    <div id="message-box" style="display: none; padding: 15px; margin-bottom: 20px; border-radius: 6px; font-weight: bold; text-align: center; border: 1px solid;"></div>
 
-    <!-- DADOS DO EDITAL -->
-    <div class="form-section">
-        <h2>📋 Dados do Edital/Licitação</h2>
+    <!-- Seção de Dados do Emissor (pré-preenchidos e somente leitura para este template) -->
+    <div class="form-section" style="display: none;">
+        <h2>Seus Dados (Emissor do Orçamento)</h2>
         <div class="two-cols">
-            <div>
-                <label for="edital_numero">Número do Edital/Pregão:</label>
-                <input type="text" id="edital_numero" placeholder="Ex: PE 001/2026">
-            </div>
-            <div>
-                <label for="orgao_entidade">Órgão/Entidade Licitante:</label>
-                <input type="text" id="orgao_entidade" placeholder="Ex: Prefeitura Municipal de Panambi">
-            </div>
+            <div><label for="empresa_razao">Razão Social:</label><input type="text" id="empresa_razao" value="Carlos Kipper Ltda" class="read-only-field" readonly></div>
+            <div><label for="empresa_cnpj">CNPJ:</label><input type="text" id="empresa_cnpj" value="13.408.443/0001-68" class="read-only-field" readonly></div>
         </div>
-        <label for="objeto_licitacao">Objeto da Licitação:</label>
-        <textarea id="objeto_licitacao" rows="2" placeholder="Ex: Aquisição de materiais de escritório..."></textarea>
         <div class="two-cols">
-            <div>
-                <label for="data_hora_pregao">Data e Hora do Pregão (Brasília):</label>
-                <input type="datetime-local" id="data_hora_pregao">
-            </div>
-            <div>
-                <label for="prazo_entrega">Prazo de Entrega/Execução:</label>
-                <input type="text" id="prazo_entrega" placeholder="Ex: 30 dias após emissão da OS">
-            </div>
+            <div><label for="empresa_ie">Inscrição Estadual:</label><input type="text" id="empresa_ie" value="090/0055324" class="read-only-field" readonly></div>
+            <div><label for="empresa_afe">AFE:</label><input type="text" id="empresa_afe" value="7216566" class="read-only-field" readonly></div>
         </div>
-        <label for="local_entrega">Local de Entrega/Execução:</label>
-        <input type="text" id="local_entrega" placeholder="Ex: Almoxarifado Central">
-        <div class="two-cols">
-            <div>
-                <label for="vigencia_proposta_dias">Vigência da Proposta (Dias):</label>
-                <input type="number" id="vigencia_proposta_dias" value="60" min="1" onchange="validateProposalValidity()">
-            </div>
-            <div>
-                <label for="garantia_proposta_percentual">Garantia da Proposta (%):</label>
-                <input type="number" id="garantia_proposta_percentual" value="0" min="0" max="100" step="0.01" onchange="validateGuarantee()">
-            </div>
-        </div>
-        <label for="garantia_proposta_forma">Forma da Garantia:</label>
-        <select id="garantia_proposta_forma" onchange="validateGuarantee()">
-            <option value="">Não Exigido</option>
-            <option value="Caução em Dinheiro/Títulos">Caução em Dinheiro/Títulos</option>
-            <option value="Seguro-Garantia (Seguro-Bid)">Seguro-Garantia (Seguro-Bid)</option>
-            <option value="Fiança Bancária">Fiança Bancária</option>
-        </select>
+        <label for="empresa_endereco">Endereço:</label><input type="text" id="empresa_endereco" value="Avenida Presidente Kennedy, 1754 Bairro: Arco Iris, Panambi - RS, CEP 98280-000" class="read-only-field" readonly>
+        <label for="empresa_contato">Contato:</label><input type="text" id="empresa_contato" value="Fone/WhatsApp: 55 98455 7096 | E-mail: ckipper22@gmail.com   Banrisul Ag:758 CC: 0609694500 - pix aga706panambi@gmail.com" class="read-only-field" readonly>
     </div>
 
-    <!-- DADOS DO CLIENTE -->
+    <!-- Seção de Dados do Cliente e da Proposta -->
     <div class="form-section">
-        <h2>👤 Dados do Cliente (Órgão Licitante)</h2>
-        <label for="cliente_nome">Nome/Razão Social:</label>
-        <input type="text" id="cliente_nome" placeholder="Nome Completo ou Razão Social">
+        <h2>Dados do Cliente e Proposta (Opcional)</h2>
         <div class="two-cols">
-            <div>
-                <label for="cliente_doc">CPF/CNPJ:</label>
-                <input type="text" id="cliente_doc" placeholder="Ex: 00.000.000/0000-00">
-            </div>
-            <div>
-                <label for="contato_email">E-mail de Contato:</label>
-                <input type="email" id="contato_email" placeholder="cliente@exemplo.com">
-            </div>
+            <div><label for="orcamento_numero">Nº Orçamento:</label><input type="text" id="orcamento_numero" placeholder="Ex: 2025/001"></div>
+            <div><label for="orcamento_data">Data de Emissão:</label><input type="date" id="orcamento_data"></div>
         </div>
+        <label for="cliente_nome">Nome/Razão Social do Cliente:</label><input type="text" id="cliente_nome" placeholder="Nome Completo ou Razão Social">
+        <div class="two-cols">
+            <div><label for="cliente_doc">CPF/CNPJ do Cliente:</label><input type="text" id="cliente_doc" placeholder="Ex: 000.000.000-00 ou 00.000.000/0000-00"></div>
+            <div><label for="orcamento_validade">Validade da Proposta (Dias):Conforme Edital Garantia : Conforme Edital"7" min="1"></div>
+        </div>
+        <label for="contato_email">E-mail de Contato do Cliente:</label><input type="email" id="contato_email" placeholder="cliente@exemplo.com">
     </div>
 
-    <!-- SIMPLES NACIONAL -->
+    <!-- Seção de Cálculo do Simples Nacional -->
     <div class="form-section" id="simples-nacional-section">
-        <h2>💰 Cálculo Simples Nacional (Anexo I - Comércio)</h2>
-        <p style="font-size: 0.9em; color: #a0522d; margin-bottom: 10px;">Insira sua Receita Bruta em 12 Meses (RBT12) para cálculo automático da Alíquota Efetiva.</p>
+        <h2>Cálculo Simples Nacional (Anexo I - Comércio)</h2>
+        <p style="font-size: 0.85em; color: #a0522d;">**Instrução:** Insira sua Receita Bruta em 12 Meses (RBT12) para que a faixa fiscal seja identificada e a Alíquota Efetiva (AE) calculada. <br> Esta AE será usada no cálculo da "Margem Lucro s/ Custo (%)" de cada item, influenciando o preço de venda final.</p>
+
         <label for="rbt12">Receita Bruta em 12 Meses (RBT12 - R$):</label>
         <input type="text" id="rbt12" value="960.000,00" placeholder="Ex: 300.000,00" oninput="this.value = formatNumericInput(this.value); updateSimplesNacional(true);">
+
         <div style="margin-top: 15px;">
             <label>Faixa Identificada:</label>
             <input type="text" id="faixa_identificada" value="N/A" class="read-only-field" readonly>
         </div>
         <div style="margin-top: 15px;">
-            <label>Alíquota Efetiva (AE) - % de Imposto:</label>
+            <label>Alíquota Efetiva (AE) - % de Imposto sobre a Receita:</label>
             <input type="text" id="aliquota_efetiva" value="0,00%" class="read-only-field" readonly>
             <input type="hidden" id="aliquota_efetiva_decimal" value="0.00">
         </div>
+
+        <!-- Tabela de faixas do Simples Nacional, oculta por ser apenas para referência interna do JS -->
+        <table id="simplesTable" style="display: none;"></table>
+        <input type="hidden" name="faixa_simples" id="faixa-select-hidden" value="3">
     </div>
 
-    <!-- ITENS DA PROPOSTA -->
+    <!-- Seção de Itens da Proposta -->
     <div class="form-section">
-        <h2>📦 Itens da Proposta</h2>
+        <h2>Itens da Proposta (Custo, Margem, Venda e Lucro por Produto)</h2>
         <table id="itemsTable">
             <thead>
                 <tr>
+                    <th style="width: 10%;">Img.</th>
                     <th style="width: 20%;">Produto/Descrição</th>
-                    <th style="width: 8%;" class="text-right">Qtd.</th>
-                    <th style="width: 10%;" class="text-right">Custo Unit. (R$)</th>
-                    <th style="width: 8%;" class="text-right">Margem (%)</th>
-                    <th style="width: 10%;" class="text-right">Valor Unit. (R$)</th>
-                    <th style="width: 8%;" class="text-right">Desc. (%)</th>
-                    <th style="width: 12%;" class="text-right">Total Item (R$)</th>
+                    <th style="width: 7%;" class="text-right">Qtd.</th>
+                    <th style="width: 8%;" class="text-right">Custo Unit. (R$)</th>
+                    <th style="width: 5%;" class="text-right">Margem Lucro s/ Custo (%)</th> <!-- Nomenclatura atualizada -->
+                    <th style="width: 8%;" class="text-right">Valor Unit. (R$)</th>
+                    <th style="width: 5%;" class="text-right">Desc. (%)</th>
+                    <th style="width: 8%;" class="text-right">Custo Total (R$)</th>
+                    <th style="width: 8%;" class="text-right">Lucro Bruto (R$)</th>
+                    <th style="width: 8%;" class="text-right">Lucro Líquido (R$)</th>
+                    <th style="width: 8%;" class="text-right">Total Item (R$)</th>
                     <th style="width: 5%;" class="text-center">Ações</th>
                 </tr>
             </thead>
-            <tbody></tbody>
-        </table>
-        <button class="btn-add btn-base" onclick="addItemRow()">+ Adicionar Item</button>
-        <div style="margin-top: 20px;">
-            <label for="forma_pagamento">Forma de Pagamento Sugerida:</label>
-            <input type="text" id="forma_pagamento" value="Conforme Edital" placeholder="Ex: 30 dias, Boleto">
-        </div>
-        <label for="observacoes">Observações:</label>
-        <textarea id="observacoes" rows="3">Preços válidos pela data de validade estipulada. O prazo de entrega será informado no momento da confirmação do pedido.</textarea>
-    </div>
-
-    <!-- DECLARAÇÕES -->
-    <div class="form-section">
-        <h2>✅ Declarações para Licitação (ME/EPP)</h2>
-        <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Selecione as declarações que devem ser incluídas na proposta.</p>
-        <div class="declaration-item">
-            <input type="checkbox" id="decl_mep_tratamento" checked>
-            <label for="decl_mep_tratamento">Declaração de ME/EPP e de tratamento diferenciado (LC 123/2006).</label>
-        </div>
-        <div class="declaration-item">
-            <input type="checkbox" id="decl_fatos_impeditivos" checked>
-            <label for="decl_fatos_impeditivos">Declaração de inexistência de fatos impeditivos (Art. 4º da Lei 14.133/2021).</label>
-        </div>
-        <div class="declaration-item">
-            <input type="checkbox" id="decl_trabalho_infantil" checked>
-            <label for="decl_trabalho_infantil">Declaração de não emprego de trabalho infantil ou análogo ao de escravo.</label>
-        </div>
-        <div class="declaration-item">
-            <input type="checkbox" id="decl_proposta_independente" checked>
-            <label for="decl_proposta_independente">Declaração de elaboração independente de proposta.</label>
-        </div>
-        <div class="declaration-item">
-            <input type="checkbox" id="decl_ausencia_impedimentos" checked>
-            <label for="decl_ausencia_impedimentos">Declaração de ausência de impedimentos para contratar.</label>
-        </div>
-        <div class="declaration-item">
-            <input type="checkbox" id="decl_obrigacoes_trabalhistas" checked>
-            <label for="decl_obrigacoes_trabalhistas">Declaração de cumprimento de obrigações trabalhistas e previdenciárias.</label>
-        </div>
-        <div class="declaration-item">
-            <input type="checkbox" id="decl_regularidade_fiscal" checked>
-            <label for="decl_regularidade_fiscal">Declaração de regularidade fiscal e trabalhista.</label>
-        </div>
-        <div class="declaration-item">
-            <input type="checkbox" id="decl_capacidade_tecnica" checked>
-            <label for="decl_capacidade_tecnica">Declaração de capacidade técnica para execução do objeto.</label>
-        </div>
-    </div>
-
-    <!-- RESUMO FINANCEIRO -->
-    <div class="finance-summary">
-        <h3>💵 Resumo Financeiro da Proposta</h3>
-        <div class="summary-grid">
-            <div class="summary-item"><strong>Custo Total (CPV):</strong><span class="value" id="resumo-custo">R$ 0,00</span></div>
-            <div class="summary-item"><strong>Receita Total (Venda):</strong><span class="value" id="resumo-receita">R$ 0,00</span></div>
-            <div class="summary-item"><strong>Lucro Bruto:</strong><span class="value" id="resumo-lucro-bruto">R$ 0,00</span></div>
-            <div class="summary-item"><strong>Imposto Total (AE):</strong><span class="value" id="resumo-imposto">R$ 0,00</span></div>
-        </div>
-        <div class="final-profit summary-item"><strong>PREÇO TOTAL DA PROPOSTA (LANCE):</strong><span class="value" id="resumo-preco-proposta">R$ 0,00</span></div>
-        <div class="final-profit summary-item"><strong>LUCRO LÍQUIDO FINAL:</strong><span class="value" id="resumo-lucro-liquido">R$ 0,00</span></div>
-    </div>
-
-    <!-- BOTÕES DE AÇÃO -->
-    <div class="btn-group">
-        <button class="btn-action" onclick="saveAsPDF()">📄 Gerar PDF</button>
-        <button class="btn-action btn-txt" onclick="triggerDownloadTxt()">📝 Baixar TXT</button>
-        <button class="btn-action btn-json-export" onclick="exportProposalAsJson()">💾 Exportar JSON</button>
-        <button class="btn-action btn-json-import" onclick="document.getElementById('json-upload').click()">📂 Importar JSON</button>
-        <button class="btn-action btn-checklist" onclick="showChecklistModal()">✓ Checklist</button>
-        <input type="file" id="json-upload" accept="application/json" style="display:none;" onchange="handleJsonUpload(event)">
-    </div>
-
-    <!-- PREVIEW PARA IMPRESSÃO -->
-    <div class="preview-area" id="preview-area"></div>
-</div>
-
-<!-- MODAL CHECKLIST -->
-<div id="checklistModal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeChecklistModal()">&times;</span>
-        <h2>✓ Checklist de Documentos para Habilitação</h2>
-        <p>Marque os documentos que você possui:</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Documento</th>
-                    <th>Validade</th>
-                    <th>Possuo</th>
-                </tr>
-            </thead>
             <tbody>
-                <tr><td>Cartão CNPJ</td><td></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Inscrição Estadual (IE)</td><td></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Inscrição Municipal (IM)</td><td></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Certidão Negativa de Débitos Federais (CND)</td><td><input type="text" placeholder="dd/mm/aaaa"></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Certidão Negativa de Débitos Estaduais (CNDE)</td><td><input type="text" placeholder="dd/mm/aaaa"></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Certidão Negativa de Débitos Municipais (CNDM)</td><td><input type="text" placeholder="dd/mm/aaaa"></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Certidão de Regularidade do FGTS (CRF)</td><td><input type="text" placeholder="dd/mm/aaaa"></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Certidão Negativa de Débitos Trabalhistas (CNDT)</td><td><input type="text" placeholder="dd/mm/aaaa"></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Balanço Patrimonial e Demonstrações Contábeis</td><td></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Declaração de ME/EPP</td><td></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Procuração (se representante legal)</td><td></td><td><input type="checkbox" checked></td></tr>
-                <tr><td>Atestados de Capacidade Técnica</td><td></td><td><input type="checkbox" checked></td></tr>
             </tbody>
         </table>
-        <div style="text-align: right; margin-top: 20px;">
-            <button class="btn-base btn-action" style="background-color: #607d8b; width: auto;" onclick="closeChecklistModal()">Fechar</button>
+        <button class="btn-add btn-base" onclick="addItemRow()">+ Adicionar Item</button>
+
+        <div style="margin-top: 20px;">
+            <label for="forma_pagamento">Forma de Pagamento Sugerida:</label>
+            <input type="text" id="forma_pagamento" value="À vista / Cartão de Crédito" placeholder="Ex: 30 dias, Boleto Bancário">
         </div>
+        <label for="observacoes">Observações (Condições, Prazos, etc.):</label>
+        <textarea id="observacoes" rows="3">Preços válidos pela data de validade estipulada. O prazo de entrega/disponibilidade será informado no momento da confirmação do pedido.</textarea>
+    </div>
+
+    <!-- Resumo Financeiro da Proposta -->
+    <div class="finance-summary">
+        <h3>Resumo Financeiro da Proposta (Lucro Líquido)</h3>
+        <div class="summary-grid">
+            <div class="summary-item"><strong>Custo Total (CPV):</strong><span class="value" id="resumo-custo">R$ 0,00</span></div>
+            <div class="summary-item"><strong>Receita Total (Venda Líquida):</strong><span class="value" id="resumo-receita">R$ 0,00</span></div>
+            <div class="summary-item"><strong>Lucro Bruto Total:</strong><span class="value" id="resumo-lucro-bruto">R$ 0,00</span></div>
+            <div class="summary-item"><strong>Imposto Total (AE):</strong><span class="value imposto-value" id="resumo-imposto">R$ 0,00</span></div>
+        </div>
+        <div class="final-profit summary-item"><strong>LUCRO LÍQUIDO FINAL:</strong><span class="value" id="resumo-lucro-liquido">R$ 0,00</span></div>
+        <p style="font-size: 0.75em; color: #43a047; text-align: right; margin-top: 5px;">*O Imposto (AE) é calculado com base na Faixa e na RBT12 informada acima.</p>
+    </div>
+
+    <!-- Grupo de Botões de Ação -->
+    <div class="btn-group">
+        <button class="btn-action" onclick="saveAsPDF()">Gerar e Imprimir/Salvar PDF</button>
+        <button class="btn-action btn-txt" onclick="triggerDownloadTxt()">Baixar Proposta como Arquivo TXT</button>
+        <button class="btn-action btn-json-export" onclick="exportProposalAsJson()">Exportar JSON</button>
+        <button class="btn-action btn-json-import" onclick="document.getElementById('json-upload').click()">Importar JSON</button>
+        <!-- Input de arquivo oculto para importação de JSON -->
+        <input type="file" id="json-upload" accept="application/json" style="display:none;" onchange="handleJsonUpload(event)">
+    </div>
+    <!-- Área de pré-visualização para impressão (oculta por padrão) -->
+    <div class="preview-area" id="preview-area">
     </div>
 </div>
 
 <script>
-    // DADOS DO SIMPLES NACIONAL
+    // Dados do Simples Nacional (Anexo I - Comércio)
     const TAX_BRACKETS = [
         { min: 0.00, max: 180000.00, aliquota: 0.0400, deducao: 0.00, faixa: '1ª (Até R$ 180.000,00)' },
         { min: 180000.01, max: 360000.00, aliquota: 0.0730, deducao: 5940.00, faixa: '2ª (R$ 180.000,01 a R$ 360.000,00)' },
@@ -473,48 +436,60 @@
         { min: 1800000.01, max: 3600000.00, aliquota: 0.1430, deducao: 87300.00, faixa: '5ª (R$ 1.800.000,01 a R$ 3.600.000,00)' },
         { min: 3600000.01, max: 4800000.00, aliquota: 0.1900, deducao: 378000.00, faixa: '6ª (R$ 3.600.000,01 a R$ 4.800.000,00)' }
     ];
+    let currentEffectiveTaxRate = 0.00; // Variável global para armazenar a AE em decimal
 
-    let currentEffectiveTaxRate = 0.00;
-    let itemCounter = 0;
-    let itemAttachments = {};
-
+    // Seus dados pré-preenchidos (do usuário)
     const DADOS_EMPRESA = {
-        razao: "Carlos Kipper Ltda",
-        cnpj: "13.408.443/0001-68",
-        ie: "090/0055324",
-        im: "12244",
-        afe: "7216566",
+        razao: document.getElementById('empresa_razao').value,
+        cnpj: document.getElementById('empresa_cnpj').value,
+        ie: document.getElementById('empresa_ie').value,
+        afe: document.getElementById('empresa_afe').value,
         endereco: "Avenida Presidente Kennedy, 1754 Bairro: Arco Iris",
         cidade: "Panambi - RS",
         cep: "98280-000",
-        fone_whatsapp: "55 98455 7096",
-        telefone: "55 33754424",
-        email: "ckipper22@gmail.com",
-        banco: "Banrisul Ag:0761 CC:06.096945.0-0",
-        pix: "aga706@agafarma.com.br"
+        contato: document.getElementById('empresa_contato').value
     };
 
-    // FUNÇÕES UTILITÁRIAS
+    let itemCounter = 0;
+    // Objeto para armazenar dados de imagem por linha (file e URL)
+    // Stores { rowId: { file: string|null, url: string|null, previewSrc: string|null } }
+    let itemAttachments = {};
+
+    /**
+     * Limpa e formata a entrada de texto para um padrão numérico brasileiro.
+     * Permite dígitos, vírgula e ponto (para facilitar a digitação)
+     * e garante apenas uma vírgula para separação decimal.
+     */
     function formatNumericInput(value) {
-        if (!value) return '';
-        let cleaned = value.replace(/[^\d,.]/g, '');
+        if (value === null || value === undefined || value.trim() === '') {
+            return '';
+        }
+        let cleaned = value.replace(/[^\d,.]/g, ''); // Permite dígitos, vírgula e ponto
+        // Garante apenas uma vírgula para separar decimais
         const parts = cleaned.split(',');
-        if (parts.length > 2) cleaned = parts[0] + ',' + parts.slice(1).join('');
+        if (parts.length > 2) { // Se houver mais de uma vírgula, considera apenas a primeira
+            cleaned = parts[0] + ',' + parts.slice(1).join('');
+        }
         return cleaned;
     }
 
+    /**
+     * Limpa o valor monetário do input, convertendo a string em float.
+     * Remove pontos de milhar e troca vírgula por ponto decimal.
+     * @param {string} valueString - O valor em string (ex: "1.200.000,00" ou "1,23").
+     * @returns {number} O valor numérico (ex: 1200000.00 ou 1.23).
+     */
     function cleanCurrency(valueString) {
-        if (!valueString) return 0;
-        let cleaned = valueString.replace(/\./g, '').replace(',', '.');
+        if (!valueString || typeof valueString !== 'string') return 0;
+        let cleaned = valueString.replace(/\./g, '').replace(',', '.'); // Remove pontos de milhar e troca vírgula por ponto decimal
         return parseFloat(cleaned) || 0;
     }
 
-    function formatCurrency(value) {
-        const num = parseFloat(value);
-        if (isNaN(num)) return 'R$ 0,00';
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
-    }
-
+    /**
+     * Exibe uma mensagem de feedback no topo da tela.
+     * @param {string} message - A mensagem a ser exibida.
+     * @param {boolean} isError - True se for uma mensagem de erro, false para sucesso/informação.
+     */
     function showMessage(message, isError = true) {
         const box = document.getElementById('message-box');
         box.innerHTML = message;
@@ -522,150 +497,226 @@
         box.style.backgroundColor = isError ? '#ffe0b2' : '#e3f2fd';
         box.style.color = isError ? '#e65100' : '#1e88e5';
         box.style.borderColor = isError ? '#e65100' : '#1e88e5';
-        setTimeout(() => { box.style.display = 'none'; }, 10000);
+        box.style.borderWidth = '1px';
+        box.style.borderStyle = 'solid';
+
+        // Oculta a mensagem após 10 segundos
+        setTimeout(() => {
+            box.style.display = 'none';
+        }, 10000);
     }
 
-    // SIMPLES NACIONAL
+    /**
+     * Identifica a faixa correta do Simples Nacional com base no RBT12.
+     * @param {number} rbt12 - Receita Bruta em 12 Meses.
+     * @returns {number} O índice (0-5) da faixa ou -1 se não encontrado/inválido.
+     */
     function identifyTaxBracket(rbt12) {
         if (rbt12 === 0) return -1;
-        if (rbt12 > 0 && rbt12 &lt;= TAX_BRACKETS[0].max) return 0;
-        for (let i = 0; i &lt; TAX_BRACKETS.length; i++) {
-            if (rbt12 > TAX_BRACKETS[i].min && rbt12 &lt;= TAX_BRACKETS[i].max) return i;
+        // Faixa 1 (até 180.000,00)
+        if (rbt12 > 0 && rbt12 <= TAX_BRACKETS[0].max) {
+             return 0;
         }
-        if (rbt12 > TAX_BRACKETS[TAX_BRACKETS.length - 1].max) return TAX_BRACKETS.length - 1;
-        return -1;
+        for (let i = 0; i < TAX_BRACKETS.length; i++) {
+            const bracket = TAX_BRACKETS[i];
+            if (rbt12 > bracket.min && rbt12 <= bracket.max) {
+                return i;
+            }
+        }
+        // Se for maior que o máximo (4.800.000), usa a última faixa
+        if (rbt12 > TAX_BRACKETS[TAX_BRACKETS.length - 1].max) {
+            return TAX_BRACKETS.length - 1;
+        }
+        return -1; // RBT12 inválida (ex: negativa ou fora de todos os limites válidos)
     }
 
+    /**
+     * Calcula a Alíquota Efetiva com base na faixa identificada e na RBT12.
+     * Atualiza os campos na UI e a variável global `currentEffectiveTaxRate`.
+     * @param {boolean} showAlert - Se deve exibir uma mensagem de alerta após o cálculo.
+     */
     function updateSimplesNacional(showAlert = false) {
         const rbt12Input = document.getElementById('rbt12').value;
         const rbt12 = cleanCurrency(rbt12Input);
+        const aliquotaEfetivaField = document.getElementById('aliquota_efetiva');
+        const aliquotaEfetivaDecimalField = document.getElementById('aliquota_efetiva_decimal');
+        const faixaIdentificadaField = document.getElementById('faixa_identificada');
+        const faixaSelectHidden = document.getElementById('faixa-select-hidden');
+
+        let effectiveTaxRate = 0;
+
         const selectedBracketIndex = identifyTaxBracket(rbt12);
 
-        if (selectedBracketIndex === -1 || rbt12 &lt;= 0) {
-            document.getElementById('aliquota_efetiva').value = "Não Aplicável";
-            document.getElementById('aliquota_efetiva_decimal').value = "0.00";
-            document.getElementById('faixa_identificada').value = "Nenhuma Faixa Aplicável";
+        if (selectedBracketIndex === -1 || rbt12 <= 0) {
+            aliquotaEfetivaField.value = "Não Aplicável / RBT12 Inválida";
+            aliquotaEfetivaDecimalField.value = "0.00";
+            faixaIdentificadaField.value = "Nenhuma Faixa Aplicável (RBT12 < 0 ou 0)";
+            faixaSelectHidden.value = "-1";
             currentEffectiveTaxRate = 0.00;
         } else {
             const bracket = TAX_BRACKETS[selectedBracketIndex];
-            const effectiveTaxRate = ((rbt12 * bracket.aliquota) - bracket.deducao) / rbt12;
-            currentEffectiveTaxRate = Math.max(0, Math.min(1, effectiveTaxRate));
-            
-            if (showAlert) showMessage(`Faixa fiscal identificada: ${bracket.faixa}`, false);
-            
-            const formattedAE = (currentEffectiveTaxRate * 100).toFixed(2).replace('.', ',');
-            document.getElementById('aliquota_efetiva').value = `${formattedAE}%`;
-            document.getElementById('aliquota_efetiva_decimal').value = currentEffectiveTaxRate.toFixed(4);
-            document.getElementById('faixa_identificada').value = bracket.faixa;
+            const ALIQ = bracket.aliquota;
+            const PD = bracket.deducao;
+
+            effectiveTaxRate = ((rbt12 * ALIQ) - PD) / rbt12;
+            if (effectiveTaxRate < 0) effectiveTaxRate = 0; // Garante que a alíquota não seja negativa
+            if (effectiveTaxRate > 1) effectiveTaxRate = 1; // Garante que a alíquota não exceda 100%
+
+            if(showAlert) {
+                showMessage(`Faixa fiscal identificada: **${bracket.faixa}**. Alíquota Efetiva calculada.`, false);
+            }
+
+            const formattedAE = (effectiveTaxRate * 100).toFixed(2).replace('.', ',');
+            aliquotaEfetivaField.value = `${formattedAE}%`;
+            aliquotaEfetivaDecimalField.value = effectiveTaxRate.toFixed(4);
+            faixaIdentificadaField.value = bracket.faixa;
+            faixaSelectHidden.value = selectedBracketIndex;
+            currentEffectiveTaxRate = effectiveTaxRate;
         }
-        updateTotals();
+
+        updateTotals(); // Recalcula todos os itens pois a AE mudou
     }
 
-    // ITENS
-    function addItemRow(data = {}) {
-        itemCounter++;
-        const tableBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-        const newRow = tableBody.insertRow();
-        const newRowId = 'row-' + itemCounter;
-        newRow.id = newRowId;
-
-        const initialMarkup = (data.markupOnCostPercent !== undefined) ? data.markupOnCostPercent : 30.00;
-
-        newRow.innerHTML = `
-            <td>
-                <input type="text" placeholder="Nome do Produto" class="item-name-input" value="${data.name || ''}" oninput="updateTotals()">
-                <textarea rows="1" placeholder="Descrição" class="item-description-input" oninput="updateTotals()" style="margin-top: 5px; font-size: 0.85em; width: 100%;">${data.description || ''}</textarea>
-            </td>
-            <td class="text-right"><input type="number" value="${data.quantity || 1}" min="1" oninput="calculateItemPrice(this)"></td>
-            <td class="text-right"><input type="text" value="${(data.unitCost !== undefined) ? data.unitCost.toFixed(2).replace('.', ',') : '0,00'}" onblur="formatCurrencyInput(this)"></td>
-            <td class="text-right"><input type="text" value="${initialMarkup.toFixed(2).replace('.', ',')}" onblur="formatPercentInput(this)"></td>
-            <td class="text-right"><input type="text" value="0,00" class="calculated-field" readonly></td>
-            <td class="text-right"><input type="text" value="${(data.discountPercent !== undefined) ? data.discountPercent.toFixed(2).replace('.', ',') : '0,00'}" onblur="formatPercentInput(this)"></td>
-            <td class="text-right total-item">R$ 0,00</td>
-            <td class="text-center"><button class="btn-remove btn-base" onclick="removeItemRow('${newRowId}')">X</button></td>
-        `;
-
-        calculateItemPrice(newRow.cells[2].getElementsByTagName('input')[0]);
+    /**
+     * Formata um número para o padrão monetário brasileiro (R$ X.XXX,XX).
+     * @param {number} value - O valor numérico.
+     * @returns {string} O valor formatado como moeda.
+     */
+    function formatCurrency(value) {
+        const num = parseFloat(value);
+        if (isNaN(num)) return 'R$ 0,00';
+        // Utiliza Intl.NumberFormat para formatação correta de moeda
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
     }
 
-    function removeItemRow(rowId) {
-        document.getElementById(rowId).remove();
-        delete itemAttachments[rowId];
-        updateTotals();
-    }
-
+    /**
+     * Função auxiliar para formatar inputs monetários (Custo Unitário) no evento blur.
+     * @param {HTMLInputElement} inputElement - O elemento input.
+     */
     function formatCurrencyInput(inputElement) {
         let value = inputElement.value;
-        if (value.trim() === '') value = "0";
+        if (value.trim() === '') value = "0"; // Trata string vazia como zero
         let cleaned = cleanCurrency(value);
-        inputElement.value = cleaned.toFixed(2).replace('.', ',');
-        calculateItemPrice(inputElement);
+
+        if (!isNaN(cleaned)) {
+            // Formata com 2 casas decimais e substitui ponto por vírgula para exibir
+            inputElement.value = cleaned.toFixed(2).replace('.', ',');
+        } else {
+            inputElement.value = "0,00";
+        }
+        calculateItemPrice(inputElement); // Dispara o recálculo do item
     }
 
+    /**
+     * Função auxiliar para formatar inputs percentuais (Margem e Desconto) e disparar cálculo.
+     * @param {HTMLInputElement} inputElement - O elemento input.
+     */
     function formatPercentInput(inputElement) {
         let value = inputElement.value;
-        if (value.trim() === '') value = "0";
+        if (value.trim() === '') value = "0"; // Trata string vazia como zero
         let cleaned = cleanCurrency(value);
-        if (isNaN(cleaned) || cleaned &lt; 0) cleaned = 0;
+
+        if (isNaN(cleaned) || cleaned < 0) cleaned = 0;
+        // Limite superior de 1000% para evitar inputs absurdos, pode ser ajustado
         if (cleaned > 1000) cleaned = 1000;
+
         inputElement.value = cleaned.toFixed(2).replace('.', ',');
-        calculateItemPrice(inputElement);
+
+        calculateItemPrice(inputElement); // Dispara o recálculo do item
     }
 
+    /**
+     * Calcula o Preço de Venda Unitário com base no Custo, na Margem de Lucro sobre Custo Desejada e na Alíquota Efetiva.
+     * Esta é a função central que implementa a nova lógica solicitada.
+     * @param {HTMLInputElement} inputElement - O input (Custo, Margem, Qtd ou Desconto) que disparou o evento.
+     */
     function calculateItemPrice(inputElement) {
         const row = inputElement.closest('tr');
-        if (!row) return;
+        if (!row) return; // Garante que a linha existe
 
-        const costInput = row.cells[2].getElementsByTagName('input')[0];
+        // 1. Coleta de inputs da linha
+        const costInput = row.cells[3].getElementsByTagName('input')[0];
         const unitCost = cleanCurrency(costInput.value);
-        const markupInput = row.cells[3].getElementsByTagName('input')[0];
-        const markupPercent = cleanCurrency(markupInput.value);
-        const markupDecimal = markupPercent / 100;
-        const priceOutput = row.cells[4].getElementsByTagName('input')[0];
-        const AE = currentEffectiveTaxRate;
+
+        const markupOnCostInput = row.cells[4].getElementsByTagName('input')[0];
+        const markupOnCostPercent = cleanCurrency(markupOnCostInput.value); // É a Margem de Lucro sobre Custo
+        const markupOnCostDecimal = markupOnCostPercent / 100;
+
+        const priceOutput = row.cells[5].getElementsByTagName('input')[0];
+        const AE = currentEffectiveTaxRate; // Alíquota Efetiva global do Simples Nacional
 
         let unitPrice = 0;
-        const numerator = unitCost * (1 + markupDecimal);
+
+        // 2. Lógica de cálculo do Valor Unitário de Venda (VU)
+        // VU = (CU * (1 + MLSC)) / (1 - AE)
+        const numerator = unitCost * (1 + markupOnCostDecimal);
         const denominator = (1 - AE);
 
-        if (denominator &lt;= 0) {
-            priceOutput.value = "IMPOSSÍVEL";
-            showMessage(`ERRO: Alíquota Efetiva muito alta (${(AE*100).toFixed(2)}%). Ajuste a RBT12.`, true);
-        } else if (unitCost &lt; 0) {
+        if (denominator <= 0) { // Impossível atingir um preço de venda válido
+            priceOutput.value = "IMPOSSÍVEL"; // Indica erro de cálculo
+            showMessage(`ERRO no Item (${row.cells[1].querySelector('.item-name-input').value}): A Alíquota Efetiva do Simples Nacional (${(AE*100).toFixed(2).replace('.', ',')}%) é muito alta (igual ou maior que 100%). Não é possível calcular um preço de venda que cubra os impostos. Ajuste a RBT12 ou revise a estrutura de custos.`, true);
+            unitPrice = 0; // Define o preço como zero para não propagar erros
+        } else if (unitCost < 0) {
             priceOutput.value = "CUSTO INV.";
-            showMessage("ERRO: Custo Unitário não pode ser negativo.", true);
-        } else {
+            showMessage(`ERRO no Item (${row.cells[1].querySelector('.item-name-input').value}): O Custo Unitário não pode ser negativo.`, true);
+            unitPrice = 0;
+        }
+        else {
             unitPrice = numerator / denominator;
             priceOutput.value = unitPrice.toFixed(2).replace('.', ',');
         }
-        updateTotals();
+
+        updateTotals(); // Recalcula os totais gerais após a mudança de um item
     }
 
+    /**
+     * Calcula o total de cada item e os totais gerais (Receita, Custo, Lucro Bruto, Imposto, Lucro Líquido).
+     * Esta função agora atualiza as novas colunas de Custo Total Item, Lucro Bruto Item e Lucro Líquido Item.
+     */
     function calculateTotal() {
-        const AE = currentEffectiveTaxRate;
+        const AE = currentEffectiveTaxRate; // Alíquota Efetiva (decimal)
         let totalReceitaLiquida = 0;
-        let subtotalBruto = 0;
+        let subtotalBruto = 0; // Total sem desconto
         let totalCusto = 0;
         let totalDescontoAplicado = 0;
         let totalImposto = 0;
-
         const tableBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-        for (let i = 0; i &lt; tableBody.rows.length; i++) {
+
+        for (let i = 0; i < tableBody.rows.length; i++) {
             const row = tableBody.rows[i];
-            const unitCost = cleanCurrency(row.cells[2].getElementsByTagName('input')[0].value);
-            const unitPriceValue = row.cells[4].getElementsByTagName('input')[0].value;
+
+            // ÍNDICES DOS CAMPOS DE ENTRADA/CÁLCULO PRINCIPAL
+            const unitCost = cleanCurrency(row.cells[3].getElementsByTagName('input')[0].value); // Custo Unitário (3)
+            const unitPriceValue = row.cells[5].getElementsByTagName('input')[0].value;
+            // Se o unitPriceValue for "IMPOSSÍVEL" ou similar, ele não é um número. Define como 0 para os cálculos.
             const unitPrice = (unitPriceValue === "IMPOSSÍVEL" || unitPriceValue === "CUSTO INV.") ? 0 : cleanCurrency(unitPriceValue);
-            const qtd = parseFloat(row.cells[1].getElementsByTagName('input')[0].value) || 0;
-            const discountPercent = cleanCurrency(row.cells[5].getElementsByTagName('input')[0].value);
+            const qtd = parseFloat(row.cells[2].getElementsByTagName('input')[0].value) || 0; // Qtd (2)
+            const discountPercent = cleanCurrency(row.cells[6].getElementsByTagName('input')[0].value); // Desconto % (6)
 
-            const totalBrutoItem = qtd * unitPrice;
+            // ÍNDICES DOS CAMPOS DE SAÍDA NOVO/TOTAL (readonly)
+            const custoTotalItemCell = row.cells[7].getElementsByTagName('input')[0];
+            const lucroBrutoItemCell = row.cells[8].getElementsByTagName('input')[0];
+            const lucroLiquidoItemCell = row.cells[9].getElementsByTagName('input')[0];
+            const totalCell = row.cells[10];
+
+            // Cálculos para o item:
+            const totalBrutoItem = qtd * unitPrice; // Preço * Qtd (antes do desconto)
             const valorDesconto = (totalBrutoItem * discountPercent) / 100;
-            const totalReceitaItem = totalBrutoItem - valorDesconto;
-            const totalCustoItem = qtd * unitCost;
-            const impostoItem = totalReceitaItem * AE;
+            const totalReceitaItem = totalBrutoItem - valorDesconto; // Venda Líquida do item
+            const totalCustoItem = qtd * unitCost; // Custo Total do item
+            const lucroBrutoItem = totalReceitaItem - totalCustoItem; // Lucro Bruto do item
+            const impostoItem = totalReceitaItem * AE; // Imposto sobre a Venda Líquida
+            const lucroLiquidoItem = lucroBrutoItem - impostoItem; // Lucro Líquido do item
 
-            row.cells[6].innerHTML = formatCurrency(totalReceitaItem);
+            // 1. ATUALIZAÇÃO DOS CAMPOS CALCULADOS DO ITEM NA TABELA
+            custoTotalItemCell.value = totalCustoItem.toFixed(2).replace('.', ',');
+            lucroBrutoItemCell.value = lucroBrutoItem.toFixed(2).replace('.', ',');
+            lucroLiquidoItemCell.value = lucroLiquidoItem.toFixed(2).replace('.', ',');
 
+            // 2. Atualiza o Total de Venda Líquida do Item (última coluna)
+            totalCell.innerHTML = formatCurrency(totalReceitaItem);
+
+            // 3. Acumula Totais Gerais para o Resumo Financeiro
             subtotalBruto += totalBrutoItem;
             totalReceitaLiquida += totalReceitaItem;
             totalCusto += totalCustoItem;
@@ -676,13 +727,14 @@
         const totalLucroBruto = totalReceitaLiquida - totalCusto;
         const totalLucroLiquido = totalLucroBruto - totalImposto;
 
+        // Atualiza Painel de Resumo Financeiro
         document.getElementById('resumo-receita').textContent = formatCurrency(totalReceitaLiquida);
         document.getElementById('resumo-custo').textContent = formatCurrency(totalCusto);
         document.getElementById('resumo-lucro-bruto').textContent = formatCurrency(totalLucroBruto);
         document.getElementById('resumo-imposto').textContent = formatCurrency(totalImposto);
-        document.getElementById('resumo-preco-proposta').textContent = formatCurrency(totalReceitaLiquida);
         document.getElementById('resumo-lucro-liquido').textContent = formatCurrency(totalLucroLiquido);
 
+        // Retorna os totais para uso em outras funções (e.g., generateProposalHTML)
         return {
             totalGeral: totalReceitaLiquida,
             subtotal: subtotalBruto,
@@ -693,122 +745,350 @@
         };
     }
 
+    /**
+     * Função wrapper para recalcular todos os totais.
+     * Chamada sempre que um input relevante é alterado.
+     */
     function updateTotals() {
         calculateTotal();
     }
 
-    function validateProposalValidity() {
-        const vigencia = parseInt(document.getElementById('vigencia_proposta_dias').value);
-        if (isNaN(vigencia) || vigencia &lt; 60) {
-            showMessage('ATENÇÃO: A vigência da proposta é inferior a 60 dias. Verifique o edital.', false);
+    /**
+     * Dispara o input de arquivo oculto quando o label "Upload" é clicado.
+     * @param {HTMLElement} buttonElement - O botão "Upload" clicado.
+     */
+    function triggerFileInput(buttonElement) {
+        const fileInput = buttonElement.previousElementSibling;
+        fileInput.click();
+    }
+
+    /**
+     * Manipula a seleção de arquivo de imagem do dispositivo para um item.
+     * @param {HTMLInputElement} fileInput - O input de arquivo.
+     */
+    function handleImageFileChange(fileInput) {
+        const row = fileInput.closest('tr');
+        const rowId = row.id;
+        const imageUrlInput = row.querySelector('.item-image-url-input');
+        const imagePreview = row.querySelector('.item-image-preview');
+        const imageFeedback = row.querySelector('.image-feedback');
+
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            // Limitar o tamanho do arquivo para evitar PDFs gigantes. Max 500KB como exemplo.
+            if (file.size > 500 * 1024) {
+                showMessage(`ERRO: A imagem "${file.name}" é muito grande (${(file.size / 1024).toFixed(2)} KB). Use um link ou reduza o tamanho do arquivo (máx 500KB).`, true);
+                fileInput.value = ''; // Limpa o input de arquivo
+                imageFeedback.textContent = 'Nenhum anexo.';
+                imagePreview.style.display = 'none';
+                if (itemAttachments[rowId]) delete itemAttachments[rowId]; // Remove anexo inválido
+                return;
+            }
+
+            reader.onload = function(e) {
+                const previewSrc = e.target.result;
+                itemAttachments[rowId] = { file: file.name, url: null, previewSrc: previewSrc }; // Guarda o nome do arquivo e o Data URL
+                imageFeedback.textContent = `Arquivo: ${file.name}`;
+                imageUrlInput.value = ''; // Limpa o campo de URL se um arquivo foi carregado
+
+                imagePreview.src = previewSrc;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Se o arquivo foi deselecionado (e.g., cancelou o diálogo de seleção)
+            if (itemAttachments[rowId]) {
+                itemAttachments[rowId].file = null; // Remove a referência ao arquivo
+                if (!itemAttachments[rowId].url) { // Se não houver URL também, limpa tudo
+                    itemAttachments[rowId].previewSrc = null;
+                    imageFeedback.textContent = 'Nenhum anexo.';
+                    imagePreview.style.display = 'none';
+                } else { // Se houver URL, restaura o feedback e preview da URL
+                    imageFeedback.textContent = `Link: ${itemAttachments[rowId].url}`;
+                    imagePreview.src = itemAttachments[rowId].url;
+                    imagePreview.style.display = 'block';
+                }
+            }
         }
     }
 
-    function validateGuarantee() {
-        const garantiaPercentual = parseFloat(document.getElementById('garantia_proposta_percentual').value);
-        const garantiaForma = document.getElementById('garantia_proposta_forma').value;
+    /**
+     * Manipula a entrada de URL da imagem para um item.
+     * @param {HTMLInputElement} urlInput - O input de texto da URL.
+     */
+    function handleImageUrlChange(urlInput) {
+        const row = urlInput.closest('tr');
+        const rowId = row.id;
+        const fileInput = row.querySelector('.item-image-file-input');
+        const imagePreview = row.querySelector('.item-image-preview');
+        const imageFeedback = row.querySelector('.image-feedback');
+        const url = urlInput.value.trim();
 
-        if (garantiaForma !== "" && (isNaN(garantiaPercentual) || garantiaPercentual &lt;= 0)) {
-            showMessage('ATENÇÃO: Forma de garantia selecionada, mas percentual não preenchido.', true);
-        } else if (garantiaForma === "" && garantiaPercentual > 0) {
-            showMessage('ATENÇÃO: Percentual preenchido, mas forma de garantia não selecionada.', true);
+        if (url !== '') {
+            itemAttachments[rowId] = { file: null, url: url, previewSrc: url }; // Guarda a URL
+            imageFeedback.textContent = `Link: ${url}`;
+            fileInput.value = ''; // Limpa a seleção do input file
+            imagePreview.src = url;
+            imagePreview.style.display = 'block';
+        } else {
+            // Se a URL foi limpa
+            if (itemAttachments[rowId]) {
+                itemAttachments[rowId].url = null; // Remove a referência à URL
+                if (itemAttachments[rowId].file) { // Se houver arquivo, restaura o feedback e preview do arquivo
+                    imageFeedback.textContent = `Arquivo: ${itemAttachments[rowId].file}`;
+                    imagePreview.src = itemAttachments[rowId].previewSrc;
+                    imagePreview.style.display = 'block';
+                } else { // Se não houver arquivo também, limpa tudo
+                    itemAttachments[rowId].previewSrc = null;
+                    imageFeedback.textContent = 'Nenhum anexo.';
+                    imagePreview.style.display = 'none';
+                }
+            }
         }
     }
 
-    // GERAÇÃO DE SAÍDA
+    /**
+     * Adiciona uma nova linha de item à tabela do formulário.
+     * @param {Object} [data] - Dados opcionais para pré-preencher a linha (usado na importação JSON).
+     */
+    function addItemRow(data = {}) {
+        itemCounter++;
+        const tableBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+        const newRow = tableBody.insertRow();
+        const newRowId = 'row-' + itemCounter;
+        newRow.id = newRowId;
+
+        // Inicializa o objeto de anexo para a nova linha, ou usa dados importados
+        itemAttachments[newRowId] = {
+            file: data.imageAttachment && data.imageAttachment.file ? data.imageAttachment.file : null,
+            url: data.imageAttachment && data.imageAttachment.url ? data.imageAttachment.url : null,
+            previewSrc: data.imageAttachment && data.imageAttachment.previewSrc ? data.imageAttachment.previewSrc : null
+        };
+
+        // Define os estados iniciais dos elementos visuais da imagem
+        const initialImageFeedback = itemAttachments[newRowId].file
+            ? `Arquivo: ${itemAttachments[newRowId].file}`
+            : (itemAttachments[newRowId].url ? `Link: ${itemAttachments[newRowId].url}` : 'Nenhum anexo.');
+        const initialImageUrlValue = itemAttachments[newRowId].url || '';
+        const initialImageDisplay = itemAttachments[newRowId].previewSrc ? 'block' : 'none';
+
+        // Determina a margem inicial, se importada ou padrão
+        // Compatibilidade com a nomenclatura antiga 'marginPercent' para importação de JSONs antigos
+        const initialMarkupOnCostPercent = (data.markupOnCostPercent !== undefined)
+            ? data.markupOnCostPercent
+            : ((data.marginPercent !== undefined) ? data.marginPercent : 30.00);
+
+
+        newRow.innerHTML = `
+            <td class="image-container">
+                <div class="image-inputs-wrapper">
+                    <input type="file" class="item-image-file-input" accept="image/*" style="display:none;" onchange="handleImageFileChange(this)">
+                    <span class="file-input-label" onclick="triggerFileInput(this)">Upload</span>
+                    <input type="text" placeholder="Link da Imagem" class="item-image-url-input" value="${initialImageUrlValue}" oninput="handleImageUrlChange(this)">
+                </div>
+                <p class="image-feedback text-xs text-muted-text-color mt-1 italic">${initialImageFeedback}</p>
+                <img id="preview-${newRowId}" src="${itemAttachments[newRowId].previewSrc || ''}" alt="Preview" class="item-image-preview" style="display: ${initialImageDisplay};">
+            </td>
+            <td>
+                <input type="text" placeholder="Nome do Produto/Serviço" class="item-name-input" value="${data.name || ''}" oninput="updateTotals()">
+                <textarea rows="2" placeholder="Descrição Detalhada do Item/Serviço" class="item-description-input" oninput="updateTotals()" style="margin-top: 5px; font-size: 0.9em;">${data.description || ''}</textarea>
+            </td>
+            <td><input type="number" value="${data.quantity || 1}" min="1" class="text-right input-quantidade" oninput="calculateItemPrice(this)"></td>
+
+            <td><input type="text" value="${(data.unitCost !== undefined) ? data.unitCost.toFixed(2).replace('.', ',') : '0,00'}" class="text-right" onblur="formatCurrencyInput(this)"></td>
+
+            <td><input type="text" value="${initialMarkupOnCostPercent.toFixed(2).replace('.', ',')}" class="text-right" onblur="formatPercentInput(this)"></td>
+
+            <td><input type="text" value="0,00" class="text-right calculated-field" readonly></td>
+
+            <td><input type="text" value="${(data.discountPercent !== undefined) ? data.discountPercent.toFixed(2).replace('.', ',') : '0,00'}" min="0" max="100" class="text-right" onblur="formatPercentInput(this)"></td>
+
+            <td><input type="text" value="0,00" class="text-right calculated-field" readonly></td>
+
+            <td><input type="text" value="0,00" class="text-right calculated-field" readonly></td>
+
+            <td><input type="text" value="0,00" class="text-right calculated-field" readonly></td>
+
+            <td class="text-right total-item">${formatCurrency(0)}</td>
+
+            <td class="text-center"><button class="btn-remove btn-base" type="button" onclick="removeItemRow('${newRowId}')">X</button></td>
+        `;
+
+        // Inicializa o preço de venda e os totais
+        calculateItemPrice(newRow.cells[3].getElementsByTagName('input')[0]);
+    }
+
+    /**
+     * Remove uma linha de item da tabela.
+     * @param {string} rowId - O ID da linha a ser removida.
+     */
+    function removeItemRow(rowId) {
+        document.getElementById(rowId).remove();
+        delete itemAttachments[rowId]; // Remove também os anexos relacionados
+        updateTotals();
+    }
+
+    /**
+     * Inicializa o formulário ao carregar a página.
+     * Define a data atual e adiciona um item inicial se a tabela estiver vazia.
+     */
+    function initialize() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('orcamento_data').value = today;
+
+        if (document.getElementById('itemsTable').getElementsByTagName('tbody')[0].rows.length === 0) {
+            addItemRow();
+        }
+
+        // Recalcula a alíquota com os valores padrões preenchidos, sem exibir o alerta de faixa
+        updateSimplesNacional(false);
+    }
+
+    // Adiciona o evento de inicialização ao carregar o DOM
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    /**
+     * ----------------------------------------------------------------------------------
+     * FUNÇÕES DE GERAÇÃO DE SAÍDA (PDF/TXT/JSON)
+     * ----------------------------------------------------------------------------------
+     */
+
+    /**
+     * Sanitiza uma string para uso em nomes de arquivo, removendo caracteres inválidos.
+     * @param {string} text - O texto a ser sanitizado.
+     * @returns {string} O texto sanitizado em maiúsculas e com traços.
+     */
     function sanitizeFilename(text) {
         if (!text) return 'Nao-Informado';
+        // Remove acentos e caracteres especiais, mantendo letras, números, espaços e traços
         let sanitized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         sanitized = sanitized.replace(/[^a-zA-Z0-9\s-]/g, '');
-        sanitized = sanitized.trim().replace(/\s+/g, '-');
+        sanitized = sanitized.trim().replace(/\s+/g, '-'); // Troca múltiplos espaços por um traço
         return sanitized.toUpperCase();
     }
 
+    /**
+     * Gera um nome de arquivo dinâmico com base nos dados da proposta.
+     * @param {string} extension - A extensão do arquivo (e.g., 'pdf', 'txt', 'json').
+     * @returns {string} O nome do arquivo gerado.
+     */
     function generateFilename(extension) {
-        const editalNumero = document.getElementById('edital_numero').value || 'EDITAL-NAO-INFORMADO';
-        const orgaoEntidade = document.getElementById('orgao_entidade').value || 'ORGAO-NAO-INFORMADO';
-        const formattedDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const sanitizedEdital = sanitizeFilename(editalNumero);
-        const sanitizedOrgao = sanitizeFilename(orgaoEntidade);
-        const filename = `PROPOSTA_${sanitizedEdital}_${sanitizedOrgao}_${formattedDate}.${extension}`;
-        return filename.replace(/--+/g, '_');
+        const tableBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+        const rows = tableBody.rows;
+
+        const dataEmissao = document.getElementById('orcamento_data').value;
+        const clienteNome = document.getElementById('cliente_nome').value || 'CLIENTE-NAO-INFORMADO';
+        const formattedDate = dataEmissao.replace(/-/g, ''); // Remove traços da data
+
+        let firstItemDescription = 'GERAL';
+        if (rows.length > 0) {
+            const firstItemInput = rows[0].cells[1].getElementsByTagName('input')[0].value.trim();
+            if(firstItemInput) {
+                firstItemDescription = firstItemInput.substring(0, 10); // Pega os 10 primeiros caracteres
+            }
+        }
+
+        const sanitizedClientName = sanitizeFilename(clienteNome);
+        const sanitizedFirst10 = sanitizeFilename(firstItemDescription);
+
+        const filename = `PROPOSTA_${sanitizedClientName}_${formattedDate}_${sanitizedFirst10}.${extension}`;
+        return filename.replace(/--+/g, '_'); // Limpa múltiplos traços para um underscore
     }
 
+    /**
+     * Coleta todos os dados e gera o HTML da proposta para visualização ou impressão (PDF).
+     * O HTML gerado é limpo e inclui apenas os dados relevantes para o cliente, sem campos internos de custo/lucro.
+     * Realiza validações essenciais antes de gerar o HTML.
+     * @returns {string|null} O HTML da proposta formatado ou null se houver erros de validação.
+     */
     function generateProposalHTML() {
         const tableBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
         const rows = tableBody.rows;
+
         if (rows.length === 0) {
-            showMessage('ERRO: Adicione pelo menos um item à proposta.', true);
+            showMessage('ERRO: É obrigatório adicionar pelo menos um item à proposta para gerar o PDF.', true);
             return null;
         }
 
-        for (let i = 0; i &lt; rows.length; i++) {
+        // Validações de campos obrigatórios dos itens
+        for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
-            const nomeProduto = row.cells[0].querySelector('.item-name-input').value.trim();
-            const qtd = parseFloat(row.cells[1].getElementsByTagName('input')[0].value);
-            const unitValueText = row.cells[4].getElementsByTagName('input')[0].value;
+            const nomeProduto = row.cells[1].querySelector('.item-name-input').value.trim();
+            const qtd = parseFloat(row.cells[2].getElementsByTagName('input')[0].value);
+            const unitValueText = row.cells[5].getElementsByTagName('input')[0].value;
             const unitValue = cleanCurrency(unitValueText);
 
             if (nomeProduto === '') {
-                showMessage(`ERRO: Item ${i + 1} sem nome do produto.`, true);
+                showMessage(`ERRO: O item ${i + 1} deve ter um 'Nome do Produto/Serviço' preenchido.`, true);
                 return null;
             }
-            if (isNaN(qtd) || qtd &lt;= 0) {
-                showMessage(`ERRO: Item ${i + 1} com quantidade inválida.`, true);
+            if (isNaN(qtd) || qtd <= 0) {
+                showMessage(`ERRO: O item ${i + 1} deve ter uma 'Quantidade' válida e maior que zero.`, true);
                 return null;
             }
-            if (unitValueText === "IMPOSSÍVEL" || unitValueText === "CUSTO INV." || isNaN(unitValue) || unitValue &lt;= 0) {
-                showMessage(`ERRO: Item ${i + 1} com valor unitário inválido.`, true);
+            if (unitValueText === "IMPOSSÍVEL" || unitValueText === "CUSTO INV." || isNaN(unitValue) || unitValue <= 0) {
+                showMessage(`ERRO: O 'Valor Unitário' do item ${i + 1} está com erro de cálculo ou é inválido. Verifique o 'Custo Unit.', a 'Margem Lucro s/ Custo (%)' e a 'Alíquota Efetiva'.`, true);
                 return null;
             }
         }
 
+        // Obtém os totais calculados
         const { subtotal, desconto, totalGeral } = calculateTotal();
-        const editalNumero = document.getElementById('edital_numero').value || 'N/A';
-        const orgaoEntidade = document.getElementById('orgao_entidade').value || 'Não Informado';
-        const objetoLicitacao = document.getElementById('objeto_licitacao').value || 'Não Informado';
-        const dataHoraPregao = document.getElementById('data_hora_pregao').value;
-        const prazoEntrega = document.getElementById('prazo_entrega').value || 'Conforme Edital';
-        const localEntrega = document.getElementById('local_entrega').value || 'Conforme Edital';
-        const vigenciaPropostaDias = document.getElementById('vigencia_proposta_dias').value || '60';
-        const garantiaPropostaPercentual = document.getElementById('garantia_proposta_percentual').value || '0';
-        const garantiaPropostaForma = document.getElementById('garantia_proposta_forma').value || 'Não Exigido';
-        const clienteNome = document.getElementById('cliente_nome').value || orgaoEntidade;
+
+        // Coleta dados da proposta e do cliente
+        const numOrcamento = document.getElementById('orcamento_numero').value || 'N/A';
+        const dataEmissao = document.getElementById('orcamento_data').value;
+        const validadeDias = document.getElementById('orcamento_validade').value || '7';
+        const clienteNome = document.getElementById('cliente_nome').value || 'Cliente Não Informado';
         const clienteDoc = document.getElementById('cliente_doc').value || 'N/A';
         const contatoEmail = document.getElementById('contato_email').value;
         const formaPagamento = document.getElementById('forma_pagamento').value;
         const observacoes = document.getElementById('observacoes').value;
+
+        // Dados fiscais para o rodapé do PDF (invisíveis no formulário, mas presentes na saída)
         const aliquotaEfetivaText = document.getElementById('aliquota_efetiva').value;
         const rbt12Value = document.getElementById('rbt12').value;
 
-        const dataEmissaoObj = new Date();
+        // Formatação de datas
+        const dataEmissaoObj = dataEmissao ? new Date(dataEmissao + 'T00:00:00') : new Date();
         const dataValidade = new Date(dataEmissaoObj);
-        dataValidade.setDate(dataValidade.getDate() + parseInt(vigenciaPropostaDias));
+        dataValidade.setDate(dataValidade.getDate() + parseInt(validadeDias));
         const dataEmissaoFormatada = dataEmissaoObj.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
         const dataValidadeFormatada = dataValidade.toLocaleDateString('pt-BR');
 
-        let dataHoraPregaoFormatada = 'Não Informada';
-        if (dataHoraPregao) {
-            const pregaoDate = new Date(dataHoraPregao);
-            dataHoraPregaoFormatada = pregaoDate.toLocaleDateString('pt-BR') + ' às ' + pregaoDate.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) + ' (Horário de Brasília)';
-        }
-
         let itemsHtml = '';
-        for (let i = 0; i &lt; rows.length; i++) {
-            const row = rows[i];
-            const nomeProduto = row.cells[0].querySelector('.item-name-input').value;
-            const descricaoDetalhada = row.cells[0].querySelector('.item-description-input').value;
-            const qtd = row.cells[1].getElementsByTagName('input')[0].value;
-            const unitValue = cleanCurrency(row.cells[4].getElementsByTagName('input')[0].value);
-            const discountPercent = cleanCurrency(row.cells[5].getElementsByTagName('input')[0].value);
-            const totalItemText = row.cells[6].textContent;
 
+        // Geração da tabela de itens para o HTML da proposta
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const rowId = row.id;
+
+            // Obtém a source da imagem do itemAttachments
+            const itemAttachment = itemAttachments[rowId];
+            const imageUrlToPrint = itemAttachment && itemAttachment.previewSrc ? itemAttachment.previewSrc : '';
+
+            // Adição de estilos inline para garantir a exibição da imagem no PDF com máxima compatibilidade.
+            const imageHtml = imageUrlToPrint
+                ? `<img src="${imageUrlToPrint}" alt="Produto" class="item-image-print" style="max-width: 50px; max-height: 50px; display: block; margin: 0 auto; object-fit: contain; vertical-align: middle;">`
+                : '';
+
+            const nomeProduto = row.cells[1].querySelector('.item-name-input').value;
+            const descricaoDetalhada = row.cells[1].querySelector('.item-description-input').value;
+            const qtd = row.cells[2].getElementsByTagName('input')[0].value;
+            const unitValue = cleanCurrency(row.cells[5].getElementsByTagName('input')[0].value);
+            const discountPercent = cleanCurrency(row.cells[6].getElementsByTagName('input')[0].value);
+            const totalItemText = row.cells[10].textContent;
+
+            // Combina nome e descrição detalhada, permitindo quebras de linha na descrição
             const descricaoCompleta = descricaoDetalhada
-                ? `${nomeProduto} <span style="font-size: 0.85em; color: #555;">${descricaoDetalhada.replace(/\n/g, '<br>')}</span>`
+                ? `${nomeProduto} <span class="item-description-print">${descricaoDetalhada.replace(/\n/g, '<br>')}</span>`
                 : nomeProduto;
 
             itemsHtml += `
                 <tr>
+                    <td style="width: 5%; border: 1px solid #000; text-align: center;">${imageHtml}</td>
                     <td style="width: 35%; border: 1px solid #000;">${descricaoCompleta}</td>
                     <td class="text-right" style="width: 8%; border: 1px solid #000;">${qtd}</td>
                     <td class="text-right" style="width: 15%; border: 1px solid #000;">${formatCurrency(unitValue)}</td>
@@ -818,117 +1098,72 @@
             `;
         }
 
-        let declarationsHtml = '';
-        const selectedDeclarations = [];
-        const declarationCheckboxes = document.querySelectorAll('.form-section:has(h2:contains("Declarações")) input[type="checkbox"]:checked');
-        document.querySelectorAll('.form-section input[type="checkbox"]:checked').forEach((checkbox, index) => {
-            if (index >= 8) { // Pula os checkboxes de outras seções
-                const label = checkbox.nextElementSibling;
-                if (label && label.tagName === 'LABEL') {
-                    selectedDeclarations.push(label.textContent);
-                }
-            }
-        });
-
-        // Coleta declarações corretamente
-        const declCheckboxes = ['decl_mep_tratamento', 'decl_fatos_impeditivos', 'decl_trabalho_infantil', 'decl_proposta_independente', 'decl_ausencia_impedimentos', 'decl_obrigacoes_trabalhistas', 'decl_regularidade_fiscal', 'decl_capacidade_tecnica'];
-        declCheckboxes.forEach(id => {
-            const checkbox = document.getElementById(id);
-            if (checkbox && checkbox.checked) {
-                const label = checkbox.nextElementSibling;
-                if (label) selectedDeclarations.push(label.textContent);
-            }
-        });
-
-        if (selectedDeclarations.length > 0) {
-            declarationsHtml += `
-                <div style="margin-top: 30px; page-break-before: always;">
-                    <h3 style="text-align: center; color: #333; margin-bottom: 15px;">DECLARAÇÕES</h3>
-            `;
-            selectedDeclarations.forEach((text, index) => {
-                declarationsHtml += `<p style="font-size: 0.9em; margin-bottom: 10px; line-height: 1.4;"><strong>${index + 1}.</strong> ${text}</p>`;
-            });
-            declarationsHtml += `
-                    <p style="font-size: 0.9em; margin-top: 15px; line-height: 1.4;">Declaro, sob as penas da lei, que as informações acima são verdadeiras e que a empresa ${DADOS_EMPRESA.razao} está apta a cumprir todas as exigências do Edital.</p>
-                    <div style="margin-top: 40px; text-align: center; font-size: 0.9em;">
-                        <p style="margin-bottom: 30px;"></p>
-                        <p><strong>${DADOS_EMPRESA.razao}</strong></p>
-                        <p>CNPJ: ${DADOS_EMPRESA.cnpj}</p>
-                        <p>${DADOS_EMPRESA.cidade}, ${dataEmissaoFormatada}</p>
-                    </div>
-                </div>
-            `;
-        }
-
         const orcamentoHtml = `
         <div style="font-family: Arial, sans-serif; padding: 10px; color: #000;">
-            <div style="border-bottom: 3px solid #1e88e5; padding-bottom: 10px;">
-                <h2 style="color: #1e88e5; margin-bottom: 5px; border: none;">${DADOS_EMPRESA.razao.toUpperCase()}</h2>
-                <p style="font-size: 0.8em; margin: 0;">CNPJ: ${DADOS_EMPRESA.cnpj} | IE: ${DADOS_EMPRESA.ie} | IM: ${DADOS_EMPRESA.im} | AFE: ${DADOS_EMPRESA.afe}</p>
+
+            <div class="orcamento-header">
+                <h2 style="color: #1e88e5; margin-bottom: 5px; border-bottom: none;">${DADOS_EMPRESA.razao.toUpperCase()}</h2>
+                <p style="font-size: 0.8em; margin: 0;">CNPJ: ${DADOS_EMPRESA.cnpj} | IE: ${DADOS_EMPRESA.ie} | AFE: ${DADOS_EMPRESA.afe}</p>
                 <p style="font-size: 0.8em; margin: 0;">${DADOS_EMPRESA.endereco}, ${DADOS_EMPRESA.cidade}, CEP ${DADOS_EMPRESA.cep}</p>
-                <p style="font-size: 0.8em; margin: 0;">Fone/WhatsApp: ${DADOS_EMPRESA.fone_whatsapp} | Tel: ${DADOS_EMPRESA.telefone} | E-mail: ${DADOS_EMPRESA.email}</p>
-                <p style="font-size: 0.8em; margin: 0;">Banco: ${DADOS_EMPRESA.banco} | PIX: ${DADOS_EMPRESA.pix}</p>
+                <p style="font-size: 0.8em; margin: 0;">${DADOS_EMPRESA.contato}</p>
             </div>
 
-            <h3 style="text-align: center; color: #333; margin-top: 15px;">PROPOSTA PARA PREGÃO ELETRÔNICO Nº ${editalNumero} - ${orgaoEntidade.toUpperCase()}</h3>
-
-            <table style="width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 0.9em;">
-                <tr>
-                    <td style="width: 70%; padding: 8px; border: 1px solid #000; background-color: #f0f0f0;">
-                        <strong>ÓRGÃO/ENTIDADE LICITANTE:</strong> ${clienteNome}<br>
-                        <strong>CNPJ:</strong> ${clienteDoc}<br>
-                        ${contatoEmail ? `<strong>E-mail:</strong> ${contatoEmail}<br>` : ''}
-                        <strong>OBJETO DA LICITAÇÃO:</strong> ${objetoLicitacao}
-                    </td>
-                    <td style="width: 30%; padding: 8px; border: 1px solid #000; background-color: #f0f0f0;">
-                        <strong>DATA/HORA DO PREGÃO:</strong> ${dataHoraPregaoFormatada}<br>
-                        <strong>PRAZO DE ENTREGA:</strong> ${prazoEntrega}<br>
-                        <strong>LOCAL DE ENTREGA:</strong> ${localEntrega}<br>
-                        <strong>VALIDADE DA PROPOSTA:</strong> ${vigenciaPropostaDias} dias (até ${dataValidadeFormatada})
-                    </td>
-                </tr>
-            </table>
-
-            ${(garantiaPropostaPercentual > 0 && garantiaPropostaForma !== "") ? `
-            <div style="margin-top: 15px; padding: 8px; border: 1px solid #000; background-color: #f9f9f9; font-size: 0.9em;">
-                <strong>GARANTIA DA PROPOSTA:</strong> ${garantiaPropostaPercentual}% do valor total da proposta, na forma de ${garantiaPropostaForma}.
-            </div>
-            ` : ''}
-
-            <h3 style="text-align: center; color: #333; margin-top: 15px;">DETALHAMENTO DOS ITENS</h3>
-            <table style="width: 100%; margin-top: 15px; font-size: 0.9em; border-collapse: collapse;">
-                <thead>
+            <div class="orcamento-body">
+                <h3 style="text-align: center; color: #333; margin-top: 15px;">PROPOSTA COMERCIAL (ORÇAMENTO)</h3>
+                <table style="width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 0.9em;">
                     <tr>
-                        <th style="width: 35%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Descrição do Produto/Serviço</th>
-                        <th class="text-right" style="width: 8%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Qtd.</th>
-                        <th class="text-right" style="width: 15%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Valor Unit.</th>
-                        <th class="text-right" style="width: 12%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Desc. (%)</th>
-                        <th class="text-right" style="width: 18%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Total Item</th>
+                        <td style="width: 70%; padding: 8px; border: 1px solid #000; background-color: #f0f0f0;">
+                            <strong>CLIENTE:</strong> ${clienteNome}<br>
+                            <strong>CPF/CNPJ:</strong> ${clienteDoc}<br>
+                            ${contatoEmail ? `<strong>E-mail:</strong> ${contatoEmail}` : ''}
+                        </td>
+                        <td style="width: 30%; padding: 8px; border: 1px solid #000; background-color: #f0f0f0;">
+                            <strong>ORÇAMENTO Nº:</strong> ${numOrcamento}<br>
+                            <strong>DATA:</strong> ${dataEmissaoFormatada}<br>
+                            <strong>VALIDADE:</strong> ${validadeDias} dias (até ${dataValidadeFormatada})
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    ${itemsHtml}
-                </tbody>
-            </table>
-
-            <div style="margin-top: 15px;">
-                <table style="width: 50%; float: right; border-collapse: collapse;">
-                    <tr><td style="padding: 5px; border: none;">Subtotal (Bruto):</td><td class="text-right" style="padding: 5px; border: none;">${formatCurrency(subtotal)}</td></tr>
-                    <tr><td style="padding: 5px; border: none;">Desconto Total Aplicado:</td><td class="text-right" style="padding: 5px; border: none;">(-) ${formatCurrency(desconto)}</td></tr>
-                    <tr><td style="color: #1e88e5; padding: 8px; border: 1px solid #000; background-color: #f0f0f0; font-weight: bold;">PREÇO TOTAL DA PROPOSTA:</td><td class="text-right" style="color: #1e88e5; padding: 8px; border: 1px solid #000; background-color: #f0f0f0; font-weight: bold;">${formatCurrency(totalGeral)}</td></tr>
                 </table>
-                <div style="clear: both;"></div>
+
+                <table style="width: 100%; margin-top: 15px; font-size: 0.9em; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Img.</th>
+                            <th style="width: 35%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Descrição do Produto/Serviço</th>
+                            <th class="text-right" style="width: 8%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Qtd.</th>
+                            <th class="text-right" style="width: 15%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Valor Unit.</th>
+                            <th class="text-right" style="width: 12%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Desc. (%)</th>
+                            <th class="text-right" style="width: 18%; border: 1px solid #000; background-color: #e3f2fd; padding: 6px;">Total Item</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+
+                <div class="clearfix">
+                    <div class="total-box">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr><td style="padding: 5px; border: none;">Subtotal (Bruto):</td><td class="text-right" style="padding: 5px; border: none;">${formatCurrency(subtotal)}</td></tr>
+                            <tr><td style="padding: 5px; border: none;">Desconto Total Aplicado:</td><td class="text-right" style="padding: 5px; border: none;">(-) ${formatCurrency(desconto)}</td></tr>
+                            <tr class="total-final"><td style="color: #1e88e5; padding: 8px; border: 1px solid #000; background-color: #f0f0f0; font-weight: bold;">TOTAL GERAL:</td><td class="text-right" style="color: #1e88e5; padding: 8px; border: 1px solid #000; background-color: #f0f0f0; font-weight: bold;">${formatCurrency(totalGeral)}</td></tr>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <div style="margin-top: 20px;">
+            <div class="orcamento-footer">
+                <!-- Informações fiscais visíveis no rodapé do PDF -->
+                <p class="info-fiscal" style="font-size: 0.75em; margin: 15px 0 5px 0; color: #666; border-top: 1px solid #ccc; padding-top: 5px;">
+                    **(Simples Nacional - Anexo I)
+                </p>
+
                 <p style="font-size: 0.9em; margin: 5px 0;"><strong>Forma de Pagamento Sugerida:</strong> ${formaPagamento}</p>
                 <p style="font-size: 0.9em; margin: 5px 0;"><strong>Observações:</strong> ${observacoes}</p>
-                <p style="font-size: 0.75em; margin: 15px 0 5px 0; color: #666; border-top: 1px solid #ccc; padding-top: 5px;">
-                    **(Informação Fiscal: Empresa optante pelo Simples Nacional - Anexo I. RBT12 utilizada: ${formatCurrency(cleanCurrency(rbt12Value))} | Alíquota Efetiva (AE) aplicada: ${aliquotaEfetivaText})**
-                </p>
+                <br>
+                <p style="text-align: center; margin-top: 30px;">_________________________________________________</p>
+                <p style="text-align: center; margin: 5px 0; font-size: 0.9em;">Assinatura do Responsável (${DADOS_EMPRESA.razao})</p>
             </div>
-
-            ${declarationsHtml}
         </div>
         `;
 
@@ -936,37 +1171,24 @@
         return orcamentoHtml;
     }
 
-    function saveAsPDF() {
-        const proposalHtml = generateProposalHTML();
-        if (!proposalHtml) return;
-        const filename = generateFilename('pdf');
-        document.getElementById('preview-area').style.display = 'block';
-        showMessage(`Proposta pronta! Ao salvar o PDF, sugerimos usar o nome: <strong>${filename}</strong>`, false);
-        window.print();
-        setTimeout(() => {
-            document.getElementById('preview-area').style.display = 'none';
-        }, 500);
-    }
-
+    /**
+     * Dispara o download nativo do arquivo de texto (TXT) com nome dinâmico.
+     * Inclui mais detalhes financeiros no TXT para um registro completo.
+     */
     function triggerDownloadTxt() {
         const proposalHtml = generateProposalHTML();
-        if (!proposalHtml) return;
+        if (!proposalHtml) return; // Se houver erro na validação, não gera o TXT
 
         const tableBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
         const rows = tableBody.rows;
+
         const { subtotal, desconto, totalGeral, custoTotal, impostoTotal, lucroLiquido } = calculateTotal();
         const filename = generateFilename('txt');
 
-        const editalNumero = document.getElementById('edital_numero').value || 'N/A';
-        const orgaoEntidade = document.getElementById('orgao_entidade').value || 'Não Informado';
-        const objetoLicitacao = document.getElementById('objeto_licitacao').value || 'Não Informado';
-        const dataHoraPregao = document.getElementById('data_hora_pregao').value;
-        const prazoEntrega = document.getElementById('prazo_entrega').value || 'Conforme Edital';
-        const localEntrega = document.getElementById('local_entrega').value || 'Conforme Edital';
-        const vigenciaPropostaDias = document.getElementById('vigencia_proposta_dias').value || '60';
-        const garantiaPropostaPercentual = document.getElementById('garantia_proposta_percentual').value || '0';
-        const garantiaPropostaForma = document.getElementById('garantia_proposta_forma').value || 'Não Exigido';
-        const clienteNome = document.getElementById('cliente_nome').value || orgaoEntidade;
+        const numOrcamento = document.getElementById('orcamento_numero').value || 'N/A';
+        const dataEmissao = document.getElementById('orcamento_data').value;
+        const validadeDias = document.getElementById('orcamento_validade').value || '7';
+        const clienteNome = document.getElementById('cliente_nome').value || 'Cliente Nao Informado';
         const clienteDoc = document.getElementById('cliente_doc').value || 'N/A';
         const contatoEmail = document.getElementById('contato_email').value;
         const formaPagamento = document.getElementById('forma_pagamento').value;
@@ -974,48 +1196,41 @@
         const aliquotaEfetivaText = document.getElementById('aliquota_efetiva').value;
         const rbt12Value = document.getElementById('rbt12').value;
 
-        const dataEmissaoObj = new Date();
+        const dataEmissaoObj = dataEmissao ? new Date(dataEmissao + 'T00:00:00') : new Date();
         const dataValidade = new Date(dataEmissaoObj);
-        dataValidade.setDate(dataValidade.getDate() + parseInt(vigenciaPropostaDias));
+        dataValidade.setDate(dataValidade.getDate() + parseInt(validadeDias));
         const dataEmissaoFormatada = dataEmissaoObj.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
         const dataValidadeFormatada = dataValidade.toLocaleDateString('pt-BR');
 
-        let dataHoraPregaoFormatada = 'Não Informada';
-        if (dataHoraPregao) {
-            const pregaoDate = new Date(dataHoraPregao);
-            dataHoraPregaoFormatada = pregaoDate.toLocaleDateString('pt-BR') + ' às ' + pregaoDate.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) + ' (Horário de Brasília)';
-        }
-
-        let content = "===== PROPOSTA PARA PREGÃO ELETRÔNICO =====\n\n";
+        let content = "===== PROPOSTA COMERCIAL (ORÇAMENTO) =====\n\n";
         content += `EMPRESA: ${DADOS_EMPRESA.razao}\n`;
         content += `CNPJ: ${DADOS_EMPRESA.cnpj}\n`;
-        content += `IE: ${DADOS_EMPRESA.ie} | IM: ${DADOS_EMPRESA.im} | AFE: ${DADOS_EMPRESA.afe}\n`;
+        content += `IE: ${DADOS_EMPRESA.ie}\n`;
+        content += `AFE: ${DADOS_EMPRESA.afe}\n`;
         content += `ENDERECO: ${DADOS_EMPRESA.endereco}, ${DADOS_EMPRESA.cidade}, CEP ${DADOS_EMPRESA.cep}\n`;
-        content += `CONTATO: Fone/WhatsApp: ${DADOS_EMPRESA.fone_whatsapp} | Tel: ${DADOS_EMPRESA.telefone} | E-mail: ${DADOS_EMPRESA.email}\n`;
-        content += `DADOS BANCARIOS: ${DADOS_EMPRESA.banco} | PIX: ${DADOS_EMPRESA.pix}\n\n`;
-        content += `PREGAO No: ${editalNumero}\n`;
-        content += `ORGAO LICITANTE: ${orgaoEntidade}\n`;
-        content += `OBJETO: ${objetoLicitacao}\n`;
-        content += `DATA/HORA PREGAO: ${dataHoraPregaoFormatada}\n`;
-        content += `PRAZO DE ENTREGA: ${prazoEntrega}\n`;
-        content += `LOCAL DE ENTREGA: ${localEntrega}\n`;
-        content += `VALIDADE DA PROPOSTA: ${vigenciaPropostaDias} dias (ate ${dataValidadeFormatada})\n`;
-        if (garantiaPropostaPercentual > 0 && garantiaPropostaForma !== "") {
-            content += `GARANTIA DA PROPOSTA: ${garantiaPropostaPercentual}% do valor total, na forma de ${garantiaPropostaForma}.\n`;
-        }
-        content += `\nCLIENTE (ORGAO LICITANTE): ${clienteNome}\n`;
-        content += `CPF/CNPJ DO CLIENTE: ${clienteDoc}\n`;
-        if (contatoEmail) content += `E-MAIL DO CLIENTE: ${contatoEmail}\n`;
-        content += "\nITENS DA PROPOSTA:\n";
+        content += `CONTATO: ${DADOS_EMPRESA.contato}\n`;
+        content += "-------------------------------------------\n";
+        content += `CLIENTE: ${clienteNome}\n`;
+        content += `CPF/CNPJ: ${clienteDoc}\n`;
+        if (contatoEmail) content += `E-MAIL: ${contatoEmail}\n`;
+        content += `ORCAMENTO No: ${numOrcamento}\n`;
+        content += `DATA DE EMISSAO: ${dataEmissaoFormatada}\n`;
+        content += `VALIDADE: ${validadeDias} dias (ate ${dataValidadeFormatada})\n`;
+        content += "-------------------------------------------\n";
+        content += "ITENS DA PROPOSTA:\n";
 
-        for (let i = 0; i &lt; rows.length; i++) {
+        for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
-            const nomeProduto = row.cells[0].querySelector('.item-name-input').value;
-            const descricaoDetalhada = row.cells[0].querySelector('.item-description-input').value;
-            const qtd = row.cells[1].getElementsByTagName('input')[0].value;
-            const unitValue = cleanCurrency(row.cells[4].getElementsByTagName('input')[0].value);
-            const discountPercent = cleanCurrency(row.cells[5].getElementsByTagName('input')[0].value);
-            const totalItem = cleanCurrency(row.cells[6].textContent.replace('R$ ', ''));
+            const nomeProduto = row.cells[1].querySelector('.item-name-input').value;
+            const descricaoDetalhada = row.cells[1].querySelector('.item-description-input').value;
+            const qtd = row.cells[2].getElementsByTagName('input')[0].value;
+            const unitValue = cleanCurrency(row.cells[5].getElementsByTagName('input')[0].value);
+            const markupOnCostPercent = cleanCurrency(row.cells[4].getElementsByTagName('input')[0].value); // Nova margem
+            const discountPercent = cleanCurrency(row.cells[6].getElementsByTagName('input')[0].value);
+            const custoItem = cleanCurrency(rows[i].cells[7].getElementsByTagName('input')[0].value);
+            const lucroBrutoItem = cleanCurrency(rows[i].cells[8].getElementsByTagName('input')[0].value);
+            const lucroLiquidoItem = cleanCurrency(rows[i].cells[9].getElementsByTagName('input')[0].value);
+            const totalItem = cleanCurrency(row.cells[10].textContent.replace('R$ ', ''));
 
             content += `\n- ITEM ${i + 1}:\n`;
             content += `  PRODUTO/SERVICO: ${nomeProduto}\n`;
@@ -1024,24 +1239,33 @@
             }
             content += `  QUANTIDADE: ${qtd}\n`;
             content += `  VALOR UNITARIO: ${formatCurrency(unitValue)}\n`;
+            content += `  MARGEM LUCRO S/ CUSTO: ${markupOnCostPercent}%\n`; // Novo campo
             content += `  DESCONTO APLICADO: ${discountPercent}%\n`;
+            content += `  CUSTO TOTAL DO ITEM: ${formatCurrency(custoItem)}\n`;
+            content += `  LUCRO BRUTO DO ITEM: ${formatCurrency(lucroBrutoItem)}\n`;
+            content += `  LUCRO LIQUIDO DO ITEM: ${formatCurrency(lucroLiquidoItem)}\n`;
             content += `  TOTAL DE VENDA (LIQUIDA) DO ITEM: ${formatCurrency(totalItem)}\n`;
         }
 
-        content += `\n\nSUBTOTAL (BRUTO ANTES DESCONTO): ${formatCurrency(subtotal)}\n`;
+        content += "-------------------------------------------\n";
+        content += `SUBTOTAL (BRUTO ANTES DESCONTO): ${formatCurrency(subtotal)}\n`;
         content += `DESCONTO TOTAL APLICADO: (-) ${formatCurrency(desconto)}\n`;
-        content += `PRECO TOTAL DA PROPOSTA (LANCE): ${formatCurrency(totalGeral)}\n`;
+        content += `TOTAL GERAL DA PROPOSTA (VENDA LIQUIDA): ${formatCurrency(totalGeral)}\n`;
         content += `CUSTO TOTAL (CPV GERAL): ${formatCurrency(custoTotal)}\n`;
-        content += `\n===== RESUMO FINANCEIRO FINAL =====\n`;
+        content += "-------------------------------------------\n";
+        content += "===== RESUMO FINANCEIRO FINAL =====\n";
         content += `RECEITA TOTAL (VENDA LIQUIDA): ${formatCurrency(totalGeral)}\n`;
         content += `CUSTO TOTAL (CPV): ${formatCurrency(custoTotal)}\n`;
         content += `LUCRO BRUTO TOTAL: ${formatCurrency(totalGeral - custoTotal)}\n`;
         content += `IMPOSTO TOTAL (AE ${aliquotaEfetivaText}): (-) ${formatCurrency(impostoTotal)}\n`;
         content += `LUCRO LIQUIDO FINAL: ${formatCurrency(lucroLiquido)}\n`;
+        content += "=========================================\n";
         content += `\nFORMA DE PAGAMENTO SUGERIDA: ${formaPagamento}\n`;
         content += `OBSERVACOES: ${observacoes}\n`;
         content += `\n**INFORMACAO FISCAL (SIMPLES NACIONAL - ANEXO I):**\n`;
         content += `RBT12 utilizada: ${formatCurrency(cleanCurrency(rbt12Value))} | Aliquota Efetiva (AE) aplicada: ${aliquotaEfetivaText}\n`;
+        content += "\n\n_________________________________________________\n";
+        content += `Assinatura do Responsavel (${DADOS_EMPRESA.razao})\n`;
 
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const a = document.createElement('a');
@@ -1050,67 +1274,88 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        showMessage(`Arquivo TXT gerado com sucesso! Nome: <strong>${filename}</strong>`, false);
+        showMessage(`Arquivo TXT gerado com sucesso! Nome do arquivo: **${filename}**`, false);
     }
 
+    /**
+     * Gera o preview em HTML e dispara a janela de impressão do navegador (para salvar como PDF).
+     */
+    function saveAsPDF() {
+        const proposalHtml = generateProposalHTML();
+        if (!proposalHtml) return; // Se houver erro na validação, não tenta imprimir
+
+        const filename = generateFilename('pdf');
+
+        // Mostra a área de preview antes de imprimir
+        document.getElementById('preview-area').style.display = 'block';
+
+        // Sugere o nome do arquivo para o PDF
+        showMessage(`Proposta pronta! Ao salvar o PDF, sugerimos usar o nome: **${filename}**`, false);
+
+        // Dispara a impressão do navegador
+        window.print();
+
+        // Oculta a área de preview após um pequeno atraso para garantir que a impressão seja disparada
+        setTimeout(() => {
+            document.getElementById('preview-area').style.display = 'none';
+        }, 500);
+    }
+
+    /**
+     * Função para exportar a proposta atual como JSON.
+     * Coleta todos os dados visíveis do formulário e dos itens.
+     */
     function exportProposalAsJson() {
         const tableBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
         const rows = tableBody.rows;
-        const itemsData = [];
 
-        for (let i = 0; i &lt; rows.length; i++) {
+        const itemsData = [];
+        for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
+            const rowId = row.id;
+
             const itemData = {
-                name: row.cells[0].querySelector('.item-name-input').value,
-                description: row.cells[0].querySelector('.item-description-input').value,
-                quantity: parseFloat(row.cells[1].getElementsByTagName('input')[0].value) || 0,
-                unitCost: cleanCurrency(row.cells[2].getElementsByTagName('input')[0].value),
-                markupOnCostPercent: cleanCurrency(row.cells[3].getElementsByTagName('input')[0].value),
-                discountPercent: cleanCurrency(row.cells[5].getElementsByTagName('input')[0].value)
+                id: rowId,
+                name: row.cells[1].querySelector('.item-name-input').value,
+                description: row.cells[1].querySelector('.item-description-input').value,
+                quantity: parseFloat(row.cells[2].getElementsByTagName('input')[0].value) || 0,
+                unitCost: cleanCurrency(row.cells[3].getElementsByTagName('input')[0].value),
+                markupOnCostPercent: cleanCurrency(row.cells[4].getElementsByTagName('input')[0].value), // Nova margem
+                discountPercent: cleanCurrency(row.cells[6].getElementsByTagName('input')[0].value),
+                // Anexos de imagem são salvos com o previewSrc (URL ou Data URL)
+                imageAttachment: itemAttachments[rowId] ? {
+                    file: itemAttachments[rowId].file, // Nome do arquivo (se upload local)
+                    url: itemAttachments[rowId].url,   // URL da imagem (se link externo)
+                    previewSrc: itemAttachments[rowId].previewSrc // Data URL ou URL para preview
+                } : null
             };
             itemsData.push(itemData);
         }
 
-        const selectedDeclarations = {};
-        ['decl_mep_tratamento', 'decl_fatos_impeditivos', 'decl_trabalho_infantil', 'decl_proposta_independente', 'decl_ausencia_impedimentos', 'decl_obrigacoes_trabalhistas', 'decl_regularidade_fiscal', 'decl_capacidade_tecnica'].forEach(id => {
-            selectedDeclarations[id] = document.getElementById(id).checked;
-        });
-
         const proposalData = {
             metadata: {
-                version: "1.3",
-                generatedBy: "Gerador de Proposta para Pregões Eletrônicos v1.3",
+                version: "1.2", // Atualiza a versão para refletir a nova lógica de margem
+                generatedBy: "Gerador de Proposta Comercial v1.2",
                 timestamp: new Date().toISOString()
             },
-            editalDetails: {
-                edital_numero: document.getElementById('edital_numero').value,
-                orgao_entidade: document.getElementById('orgao_entidade').value,
-                objeto_licitacao: document.getElementById('objeto_licitacao').value,
-                data_hora_pregao: document.getElementById('data_hora_pregao').value,
-                prazo_entrega: document.getElementById('prazo_entrega').value,
-                local_entrega: document.getElementById('local_entrega').value,
-                vigencia_proposta_dias: document.getElementById('vigencia_proposta_dias').value,
-                garantia_proposta_percentual: document.getElementById('garantia_proposta_percentual').value,
-                garantia_proposta_forma: document.getElementById('garantia_proposta_forma').value
-            },
-            clientDetails: {
+            proposalDetails: {
+                orcamento_numero: document.getElementById('orcamento_numero').value,
+                orcamento_data: document.getElementById('orcamento_data').value,
                 cliente_nome: document.getElementById('cliente_nome').value,
                 cliente_doc: document.getElementById('cliente_doc').value,
-                contato_email: document.getElementById('contato_email').value
-            },
-            proposalDetails: {
+                orcamento_validade: document.getElementById('orcamento_validade').value,
+                contato_email: document.getElementById('contato_email').value,
                 forma_pagamento: document.getElementById('forma_pagamento').value,
                 observacoes: document.getElementById('observacoes').value
             },
             taxDetails: {
                 rbt12: document.getElementById('rbt12').value
             },
-            declarations: selectedDeclarations,
             items: itemsData
         };
 
         const filename = generateFilename('json');
-        const jsonString = JSON.stringify(proposalData, null, 2);
+        const jsonString = JSON.stringify(proposalData, null, 2); // Formata o JSON para legibilidade
         const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -1118,107 +1363,65 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        showMessage(`Proposta exportada como JSON! Nome: <strong>${filename}</strong>`, false);
+        showMessage(`Proposta exportada como JSON! Nome do arquivo: **${filename}**`, false);
     }
 
+    /**
+     * Função para importar uma proposta de um arquivo JSON.
+     * Limpa o formulário atual e preenche com os dados do JSON.
+     */
     function handleJsonUpload(event) {
         const file = event.target.files[0];
-        if (!file) return;
+        if (!file) {
+            return;
+        }
 
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
                 const importedData = JSON.parse(e.target.result);
 
-                if (!importedData || !importedData.editalDetails || !importedData.items) {
-                    showMessage('ERRO: Arquivo JSON inválido para licitação.', true);
+                // Validação básica da estrutura do JSON
+                if (!importedData || !importedData.proposalDetails || !importedData.items) {
+                    showMessage('ERRO: O arquivo JSON não parece ser uma proposta válida. Verifique se ele foi gerado por esta ferramenta.', true);
                     return;
                 }
 
+                // Limpa todos os itens existentes na tabela
                 const tableBody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
                 tableBody.innerHTML = '';
-                itemAttachments = {};
-                itemCounter = 0;
+                itemAttachments = {}; // Limpa os anexos também
+                itemCounter = 0; // Reseta o contador para novos IDs
 
-                document.getElementById('edital_numero').value = importedData.editalDetails.edital_numero || '';
-                document.getElementById('orgao_entidade').value = importedData.editalDetails.orgao_entidade || '';
-                document.getElementById('objeto_licitacao').value = importedData.editalDetails.objeto_licitacao || '';
-                document.getElementById('data_hora_pregao').value = importedData.editalDetails.data_hora_pregao || '';
-                document.getElementById('prazo_entrega').value = importedData.editalDetails.prazo_entrega || '';
-                document.getElementById('local_entrega').value = importedData.editalDetails.local_entrega || '';
-                document.getElementById('vigencia_proposta_dias').value = importedData.editalDetails.vigencia_proposta_dias || '60';
-                document.getElementById('garantia_proposta_percentual').value = importedData.editalDetails.garantia_proposta_percentual || '0';
-                document.getElementById('garantia_proposta_forma').value = importedData.editalDetails.garantia_proposta_forma || '';
+                // Preenche os dados da proposta
+                document.getElementById('orcamento_numero').value = importedData.proposalDetails.orcamento_numero || '';
+                document.getElementById('orcamento_data').value = importedData.proposalDetails.orcamento_data || '';
+                document.getElementById('cliente_nome').value = importedData.proposalDetails.cliente_nome || '';
+                document.getElementById('cliente_doc').value = importedData.proposalDetails.cliente_doc || '';
+                document.getElementById('orcamento_validade').value = importedData.proposalDetails.orcamento_validade || '7';
+                document.getElementById('contato_email').value = importedData.proposalDetails.contato_email || '';
+                document.getElementById('forma_pagamento').value = importedData.proposalDetails.forma_pagamento || 'À vista / Cartão de Crédito';
+                document.getElementById('observacoes').value = importedData.proposalDetails.observacoes || 'Preços válidos pela data de validade estipulada. O prazo de entrega/disponibilidade será informado no momento da confirmação do pedido.';
 
-                document.getElementById('cliente_nome').value = importedData.clientDetails.cliente_nome || '';
-                document.getElementById('cliente_doc').value = importedData.clientDetails.cliente_doc || '';
-                document.getElementById('contato_email').value = importedData.clientDetails.contato_email || '';
-
-                document.getElementById('forma_pagamento').value = importedData.proposalDetails.forma_pagamento || 'Conforme Edital';
-                document.getElementById('observacoes').value = importedData.proposalDetails.observacoes || 'Preços válidos pela data de validade estipulada.';
-
+                // Preenche os dados do Simples Nacional e recalcula a alíquota
                 document.getElementById('rbt12').value = importedData.taxDetails.rbt12 || '960.000,00';
-                updateSimplesNacional(false);
+                updateSimplesNacional(false); // Recalcula a alíquota sem exibir o alerta de faixa
 
-                ['decl_mep_tratamento', 'decl_fatos_impeditivos', 'decl_trabalho_infantil', 'decl_proposta_independente', 'decl_ausencia_impedimentos', 'decl_obrigacoes_trabalhistas', 'decl_regularidade_fiscal', 'decl_capacidade_tecnica'].forEach(id => {
-                    const checkbox = document.getElementById(id);
-                    if (importedData.declarations && importedData.declarations[id] !== undefined) {
-                        checkbox.checked = importedData.declarations[id];
-                    } else {
-                        checkbox.checked = true;
-                    }
-                });
-
+                // Adiciona os itens importados, um por um
                 importedData.items.forEach(item => addItemRow(item));
 
+                // Força o recálculo final para garantir que tudo está sincronizado
                 updateTotals();
-                validateProposalValidity();
-                validateGuarantee();
-
                 showMessage('Proposta importada com sucesso!', false);
+
             } catch (error) {
-                showMessage('ERRO ao processar JSON: ' + error.message, true);
+                showMessage('ERRO ao processar o arquivo JSON. Verifique se o arquivo está no formato correto. Detalhes: ' + error.message, true);
                 console.error('Erro ao importar JSON:', error);
             }
         };
         reader.readAsText(file);
     }
 
-    // MODAL CHECKLIST
-    function showChecklistModal() {
-        document.getElementById('checklistModal').style.display = 'block';
-    }
-
-    function closeChecklistModal() {
-        document.getElementById('checklistModal').style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById('checklistModal');
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
-    // INICIALIZAÇÃO
-    document.addEventListener('DOMContentLoaded', function() {
-        const today = new Date();
-        const todayISO = today.toISOString().split('T')[0];
-        document.getElementById('data_hora_pregao').value = today.getFullYear() + '-' + 
-            ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
-            ('0' + today.getDate()).slice(-2) + 'T' + 
-            ('0' + today.getHours()).slice(-2) + ':' + 
-            ('0' + today.getMinutes()).slice(-2);
-
-        if (document.getElementById('itemsTable').getElementsByTagName('tbody')[0].rows.length === 0) {
-            addItemRow();
-        }
-
-        updateSimplesNacional(false);
-        validateProposalValidity();
-        validateGuarantee();
-    });
 </script>
-
 </body>
 </html>
